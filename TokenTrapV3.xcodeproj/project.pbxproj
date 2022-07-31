@@ -1,0 +1,588 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B5D273952896D55900B7119A /* TokenTrapV3App.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273942896D55900B7119A /* TokenTrapV3App.swift */; };
+		B5D273972896D55900B7119A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273962896D55900B7119A /* ContentView.swift */; };
+		B5D273992896D55C00B7119A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5D273982896D55C00B7119A /* Assets.xcassets */; };
+		B5D2739C2896D55C00B7119A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5D2739B2896D55C00B7119A /* Preview Assets.xcassets */; };
+		B5D273A62896D55C00B7119A /* TokenTrapV3Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273A52896D55C00B7119A /* TokenTrapV3Tests.swift */; };
+		B5D273B02896D55C00B7119A /* TokenTrapV3UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273AF2896D55C00B7119A /* TokenTrapV3UITests.swift */; };
+		B5D273B22896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273B12896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B5D273A22896D55C00B7119A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B5D273892896D55900B7119A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B5D273902896D55900B7119A;
+			remoteInfo = TokenTrapV3;
+		};
+		B5D273AC2896D55C00B7119A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B5D273892896D55900B7119A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B5D273902896D55900B7119A;
+			remoteInfo = TokenTrapV3;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		B5D273912896D55900B7119A /* TokenTrapV3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TokenTrapV3.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5D273942896D55900B7119A /* TokenTrapV3App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTrapV3App.swift; sourceTree = "<group>"; };
+		B5D273962896D55900B7119A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B5D273982896D55C00B7119A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B5D2739B2896D55C00B7119A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		B5D273A12896D55C00B7119A /* TokenTrapV3Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TokenTrapV3Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5D273A52896D55C00B7119A /* TokenTrapV3Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTrapV3Tests.swift; sourceTree = "<group>"; };
+		B5D273AB2896D55C00B7119A /* TokenTrapV3UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TokenTrapV3UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5D273AF2896D55C00B7119A /* TokenTrapV3UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTrapV3UITests.swift; sourceTree = "<group>"; };
+		B5D273B12896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTrapV3UITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B5D2738E2896D55900B7119A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5D2739E2896D55C00B7119A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5D273A82896D55C00B7119A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B5D273882896D55900B7119A = {
+			isa = PBXGroup;
+			children = (
+				B5D273932896D55900B7119A /* TokenTrapV3 */,
+				B5D273A42896D55C00B7119A /* TokenTrapV3Tests */,
+				B5D273AE2896D55C00B7119A /* TokenTrapV3UITests */,
+				B5D273922896D55900B7119A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B5D273922896D55900B7119A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B5D273912896D55900B7119A /* TokenTrapV3.app */,
+				B5D273A12896D55C00B7119A /* TokenTrapV3Tests.xctest */,
+				B5D273AB2896D55C00B7119A /* TokenTrapV3UITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B5D273932896D55900B7119A /* TokenTrapV3 */ = {
+			isa = PBXGroup;
+			children = (
+				B5D273942896D55900B7119A /* TokenTrapV3App.swift */,
+				B5D273962896D55900B7119A /* ContentView.swift */,
+				B5D273982896D55C00B7119A /* Assets.xcassets */,
+				B5D2739A2896D55C00B7119A /* Preview Content */,
+			);
+			path = TokenTrapV3;
+			sourceTree = "<group>";
+		};
+		B5D2739A2896D55C00B7119A /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				B5D2739B2896D55C00B7119A /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		B5D273A42896D55C00B7119A /* TokenTrapV3Tests */ = {
+			isa = PBXGroup;
+			children = (
+				B5D273A52896D55C00B7119A /* TokenTrapV3Tests.swift */,
+			);
+			path = TokenTrapV3Tests;
+			sourceTree = "<group>";
+		};
+		B5D273AE2896D55C00B7119A /* TokenTrapV3UITests */ = {
+			isa = PBXGroup;
+			children = (
+				B5D273AF2896D55C00B7119A /* TokenTrapV3UITests.swift */,
+				B5D273B12896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift */,
+			);
+			path = TokenTrapV3UITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B5D273902896D55900B7119A /* TokenTrapV3 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B5D273B52896D55C00B7119A /* Build configuration list for PBXNativeTarget "TokenTrapV3" */;
+			buildPhases = (
+				B5D2738D2896D55900B7119A /* Sources */,
+				B5D2738E2896D55900B7119A /* Frameworks */,
+				B5D2738F2896D55900B7119A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TokenTrapV3;
+			productName = TokenTrapV3;
+			productReference = B5D273912896D55900B7119A /* TokenTrapV3.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B5D273A02896D55C00B7119A /* TokenTrapV3Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B5D273B82896D55C00B7119A /* Build configuration list for PBXNativeTarget "TokenTrapV3Tests" */;
+			buildPhases = (
+				B5D2739D2896D55C00B7119A /* Sources */,
+				B5D2739E2896D55C00B7119A /* Frameworks */,
+				B5D2739F2896D55C00B7119A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B5D273A32896D55C00B7119A /* PBXTargetDependency */,
+			);
+			name = TokenTrapV3Tests;
+			productName = TokenTrapV3Tests;
+			productReference = B5D273A12896D55C00B7119A /* TokenTrapV3Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B5D273AA2896D55C00B7119A /* TokenTrapV3UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B5D273BB2896D55C00B7119A /* Build configuration list for PBXNativeTarget "TokenTrapV3UITests" */;
+			buildPhases = (
+				B5D273A72896D55C00B7119A /* Sources */,
+				B5D273A82896D55C00B7119A /* Frameworks */,
+				B5D273A92896D55C00B7119A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B5D273AD2896D55C00B7119A /* PBXTargetDependency */,
+			);
+			name = TokenTrapV3UITests;
+			productName = TokenTrapV3UITests;
+			productReference = B5D273AB2896D55C00B7119A /* TokenTrapV3UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B5D273892896D55900B7119A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1340;
+				LastUpgradeCheck = 1340;
+				TargetAttributes = {
+					B5D273902896D55900B7119A = {
+						CreatedOnToolsVersion = 13.4.1;
+					};
+					B5D273A02896D55C00B7119A = {
+						CreatedOnToolsVersion = 13.4.1;
+						TestTargetID = B5D273902896D55900B7119A;
+					};
+					B5D273AA2896D55C00B7119A = {
+						CreatedOnToolsVersion = 13.4.1;
+						TestTargetID = B5D273902896D55900B7119A;
+					};
+				};
+			};
+			buildConfigurationList = B5D2738C2896D55900B7119A /* Build configuration list for PBXProject "TokenTrapV3" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B5D273882896D55900B7119A;
+			productRefGroup = B5D273922896D55900B7119A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B5D273902896D55900B7119A /* TokenTrapV3 */,
+				B5D273A02896D55C00B7119A /* TokenTrapV3Tests */,
+				B5D273AA2896D55C00B7119A /* TokenTrapV3UITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B5D2738F2896D55900B7119A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5D2739C2896D55C00B7119A /* Preview Assets.xcassets in Resources */,
+				B5D273992896D55C00B7119A /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5D2739F2896D55C00B7119A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5D273A92896D55C00B7119A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B5D2738D2896D55900B7119A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5D273972896D55900B7119A /* ContentView.swift in Sources */,
+				B5D273952896D55900B7119A /* TokenTrapV3App.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5D2739D2896D55C00B7119A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5D273A62896D55C00B7119A /* TokenTrapV3Tests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5D273A72896D55C00B7119A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5D273B22896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift in Sources */,
+				B5D273B02896D55C00B7119A /* TokenTrapV3UITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B5D273A32896D55C00B7119A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B5D273902896D55900B7119A /* TokenTrapV3 */;
+			targetProxy = B5D273A22896D55C00B7119A /* PBXContainerItemProxy */;
+		};
+		B5D273AD2896D55C00B7119A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B5D273902896D55900B7119A /* TokenTrapV3 */;
+			targetProxy = B5D273AC2896D55C00B7119A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		B5D273B32896D55C00B7119A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B5D273B42896D55C00B7119A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B5D273B62896D55C00B7119A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"TokenTrapV3/Preview Content\"";
+				DEVELOPMENT_TEAM = Y3UN5Q4PWL;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.balcomb.TokenTrapV3;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B5D273B72896D55C00B7119A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"TokenTrapV3/Preview Content\"";
+				DEVELOPMENT_TEAM = Y3UN5Q4PWL;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.balcomb.TokenTrapV3;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		B5D273B92896D55C00B7119A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y3UN5Q4PWL;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.balcomb.TokenTrapV3Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TokenTrapV3.app/TokenTrapV3";
+			};
+			name = Debug;
+		};
+		B5D273BA2896D55C00B7119A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y3UN5Q4PWL;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.balcomb.TokenTrapV3Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TokenTrapV3.app/TokenTrapV3";
+			};
+			name = Release;
+		};
+		B5D273BC2896D55C00B7119A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y3UN5Q4PWL;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.balcomb.TokenTrapV3UITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TokenTrapV3;
+			};
+			name = Debug;
+		};
+		B5D273BD2896D55C00B7119A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y3UN5Q4PWL;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.balcomb.TokenTrapV3UITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TokenTrapV3;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B5D2738C2896D55900B7119A /* Build configuration list for PBXProject "TokenTrapV3" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B5D273B32896D55C00B7119A /* Debug */,
+				B5D273B42896D55C00B7119A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B5D273B52896D55C00B7119A /* Build configuration list for PBXNativeTarget "TokenTrapV3" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B5D273B62896D55C00B7119A /* Debug */,
+				B5D273B72896D55C00B7119A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B5D273B82896D55C00B7119A /* Build configuration list for PBXNativeTarget "TokenTrapV3Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B5D273B92896D55C00B7119A /* Debug */,
+				B5D273BA2896D55C00B7119A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B5D273BB2896D55C00B7119A /* Build configuration list for PBXNativeTarget "TokenTrapV3UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B5D273BC2896D55C00B7119A /* Debug */,
+				B5D273BD2896D55C00B7119A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B5D273892896D55900B7119A /* Project object */;
+}
