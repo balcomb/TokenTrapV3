@@ -8,12 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		B5D273952896D55900B7119A /* TokenTrapV3App.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273942896D55900B7119A /* TokenTrapV3App.swift */; };
-		B5D273972896D55900B7119A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273962896D55900B7119A /* ContentView.swift */; };
+		B5D273972896D55900B7119A /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273962896D55900B7119A /* MenuView.swift */; };
 		B5D273992896D55C00B7119A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5D273982896D55C00B7119A /* Assets.xcassets */; };
 		B5D2739C2896D55C00B7119A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5D2739B2896D55C00B7119A /* Preview Assets.xcassets */; };
 		B5D273A62896D55C00B7119A /* TokenTrapV3Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273A52896D55C00B7119A /* TokenTrapV3Tests.swift */; };
 		B5D273B02896D55C00B7119A /* TokenTrapV3UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273AF2896D55C00B7119A /* TokenTrapV3UITests.swift */; };
 		B5D273B22896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273B12896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift */; };
+		B5D273BF2896D59200B7119A /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273BE2896D59200B7119A /* Coordinator.swift */; };
+		B5D273C22896E29400B7119A /* StyledPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C12896E29400B7119A /* StyledPicker.swift */; };
+		B5D273C428A025E500B7119A /* Color+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C328A025E500B7119A /* Color+Extensions.swift */; };
+		B5D273C628A0260E00B7119A /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C528A0260E00B7119A /* GameView.swift */; };
+		B5D273C828A0263500B7119A /* LearnHowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C728A0263500B7119A /* LearnHowView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,7 +41,7 @@
 /* Begin PBXFileReference section */
 		B5D273912896D55900B7119A /* TokenTrapV3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TokenTrapV3.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5D273942896D55900B7119A /* TokenTrapV3App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTrapV3App.swift; sourceTree = "<group>"; };
-		B5D273962896D55900B7119A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B5D273962896D55900B7119A /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
 		B5D273982896D55C00B7119A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B5D2739B2896D55C00B7119A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B5D273A12896D55C00B7119A /* TokenTrapV3Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TokenTrapV3Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,6 +49,12 @@
 		B5D273AB2896D55C00B7119A /* TokenTrapV3UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TokenTrapV3UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5D273AF2896D55C00B7119A /* TokenTrapV3UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTrapV3UITests.swift; sourceTree = "<group>"; };
 		B5D273B12896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTrapV3UITestsLaunchTests.swift; sourceTree = "<group>"; };
+		B5D273BE2896D59200B7119A /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		B5D273C02896D75900B7119A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B5D273C12896E29400B7119A /* StyledPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyledPicker.swift; sourceTree = "<group>"; };
+		B5D273C328A025E500B7119A /* Color+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extensions.swift"; sourceTree = "<group>"; };
+		B5D273C528A0260E00B7119A /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
+		B5D273C728A0263500B7119A /* LearnHowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnHowView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,8 +105,14 @@
 		B5D273932896D55900B7119A /* TokenTrapV3 */ = {
 			isa = PBXGroup;
 			children = (
+				B5D273C02896D75900B7119A /* Info.plist */,
 				B5D273942896D55900B7119A /* TokenTrapV3App.swift */,
-				B5D273962896D55900B7119A /* ContentView.swift */,
+				B5D273BE2896D59200B7119A /* Coordinator.swift */,
+				B5D273962896D55900B7119A /* MenuView.swift */,
+				B5D273C528A0260E00B7119A /* GameView.swift */,
+				B5D273C12896E29400B7119A /* StyledPicker.swift */,
+				B5D273C728A0263500B7119A /* LearnHowView.swift */,
+				B5D273C328A025E500B7119A /* Color+Extensions.swift */,
 				B5D273982896D55C00B7119A /* Assets.xcassets */,
 				B5D2739A2896D55C00B7119A /* Preview Content */,
 			);
@@ -257,8 +274,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5D273972896D55900B7119A /* ContentView.swift in Sources */,
+				B5D273C428A025E500B7119A /* Color+Extensions.swift in Sources */,
+				B5D273C22896E29400B7119A /* StyledPicker.swift in Sources */,
+				B5D273972896D55900B7119A /* MenuView.swift in Sources */,
+				B5D273C828A0263500B7119A /* LearnHowView.swift in Sources */,
 				B5D273952896D55900B7119A /* TokenTrapV3App.swift in Sources */,
+				B5D273C628A0260E00B7119A /* GameView.swift in Sources */,
+				B5D273BF2896D59200B7119A /* Coordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -420,9 +442,9 @@
 				DEVELOPMENT_TEAM = Y3UN5Q4PWL;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TokenTrapV3/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -449,9 +471,9 @@
 				DEVELOPMENT_TEAM = Y3UN5Q4PWL;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TokenTrapV3/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
