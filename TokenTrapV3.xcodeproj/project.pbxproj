@@ -19,6 +19,7 @@
 		B5D273C428A025E500B7119A /* Color+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C328A025E500B7119A /* Color+Extensions.swift */; };
 		B5D273C628A0260E00B7119A /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C528A0260E00B7119A /* GameView.swift */; };
 		B5D273C828A0263500B7119A /* LearnHowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C728A0263500B7119A /* LearnHowView.swift */; };
+		B5D273CA28A7F74500B7119A /* TokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C928A7F74500B7119A /* TokenView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,7 @@
 		B5D273C328A025E500B7119A /* Color+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extensions.swift"; sourceTree = "<group>"; };
 		B5D273C528A0260E00B7119A /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		B5D273C728A0263500B7119A /* LearnHowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnHowView.swift; sourceTree = "<group>"; };
+		B5D273C928A7F74500B7119A /* TokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +115,7 @@
 				B5D273C12896E29400B7119A /* StyledPicker.swift */,
 				B5D273C728A0263500B7119A /* LearnHowView.swift */,
 				B5D273C328A025E500B7119A /* Color+Extensions.swift */,
+				B5D273C928A7F74500B7119A /* TokenView.swift */,
 				B5D273982896D55C00B7119A /* Assets.xcassets */,
 				B5D2739A2896D55C00B7119A /* Preview Content */,
 			);
@@ -280,6 +283,7 @@
 				B5D273C828A0263500B7119A /* LearnHowView.swift in Sources */,
 				B5D273952896D55900B7119A /* TokenTrapV3App.swift in Sources */,
 				B5D273C628A0260E00B7119A /* GameView.swift in Sources */,
+				B5D273CA28A7F74500B7119A /* TokenView.swift in Sources */,
 				B5D273BF2896D59200B7119A /* Coordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

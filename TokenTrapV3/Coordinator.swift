@@ -18,7 +18,7 @@ struct Coordinator: View {
             menu
         }
         .sheet(isPresented: $isShowingLearnHow) {
-            LearnHowView()
+            LearnHowView(isShowingLearnHow: $isShowingLearnHow)
         }
         .fullScreenCover(isPresented: $isShowingGame) {
             GameView(settings: gameSettings) { isShowingGame = false }
