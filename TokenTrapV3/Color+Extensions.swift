@@ -13,4 +13,7 @@ extension Color {
     static var logoBlue: Color { Color("LogoBlue") }
     static var boardBackground: Color { Color("BoardBackground") }
     static var gridBackground: Color { Color("GridBackground") }
+    static var tokenBackgroundGold: Color { Color("TokenBackgroundGold") }
+    static var tokenBackgroundGreen: Color { Color("TokenBackgroundGreen") }
+    static var tokenBackgroundRed: Color { Color("TokenBackgroundRed") }
 }

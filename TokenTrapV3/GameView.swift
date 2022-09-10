@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct GameView: View {
-    let settings: GameSettings
-    var completion: () -> Void
+    @StateObject var viewModel = GameViewModel()
+    let settings: GameViewModel.Settings
+    let completion: () -> Void
 
     static var boardWidth: CGFloat {
-        let screenWidth = UIScreen.screens.first?.bounds.size.width ?? .zero
-        guard UIDevice.current.userInterfaceIdiom == .pad else {
-            return screenWidth
-        }
-        return screenWidth * 0.666
+        UIScreen.main.bounds.size.width * (UIDevice.current.userInterfaceIdiom == .pad ? 0.666 : 1)
     }
+    static var gridWidth: CGFloat { GameView.boardWidth - (2 * tokenSpacing) }
+    static var tokenSpacing: CGFloat { 1 }
+    static var tokenSize: CGFloat { (gridWidth / CGFloat(GameViewModel.gridSize)) - tokenSpacing }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -27,6 +27,12 @@ struct GameView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
+        .onAppear {
+            viewModel.settings = settings
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                viewModel.addRows()
+            }
+        }
     }
 
     private var topControls: some View {
@@ -38,11 +44,26 @@ struct GameView: View {
     }
 
     private var boardContainer: some View {
-        VStack(spacing: 0) {
+        ZStack {
             GridView()
+            rows
         }
         .frame(width: Self.boardWidth, height: Self.boardWidth)
         .background(Color.boardBackground)
+    }
+
+    private var rows: some View {
+        VStack(spacing: Self.tokenSpacing) {
+            if viewModel.rows.count < GameViewModel.gridSize {
+                Spacer()
+            }
+            ForEach(viewModel.rows) { row in
+                RowView(row: row) {
+                    viewModel.handleTap(token: $0)
+                }
+            }
+        }
+        .frame(width: Self.gridWidth, height: Self.gridWidth)
     }
 
     private var bottomControls: some View {
@@ -54,43 +75,60 @@ struct GameView: View {
     }
 }
 
-struct GridView: View {
-    private var gridSize: Int { 8 }
-    private var adjustedWidth: CGFloat { GameView.boardWidth - (2 * cellSpacing) }
-    private var cellSpacing: CGFloat { 1 }
-    private var cellSize: CGFloat { (adjustedWidth / CGFloat(gridSize)) - cellSpacing }
+extension GameView {
 
-    var body: some View {
-        VStack(spacing: cellSpacing) {
-            fill(with: { row })
+    struct RowView: View {
+        @ObservedObject var row: GameViewModel.Row
+        @State private var scale = 0.7
+        let action: (Token) -> Void
+
+        var body: some View {
+            HStack(spacing: GameView.tokenSpacing) {
+                getTokenViews()
+            }
+            .scaleEffect(scale)
+            .onAppear {
+                withAnimation {
+                    scale = 1
+                }
+            }
         }
-        .frame(width: adjustedWidth, height: adjustedWidth)
-    }
 
-    private var row: some View {
-        HStack(spacing: cellSpacing) {
-            fill(with: { cell })
-        }
-    }
-
-    private var cell: some View {
-        Circle()
-            .foregroundColor(.gridBackground)
-            .frame(width: cellSize, height: cellSize)
-    }
-
-    private func fill<Content: View>(with content: @escaping () -> Content) -> some View {
-        ForEach(1...gridSize, id: \.self) { _ in
-            content()
+        private func getTokenViews() -> some View {
+            ForEach(row.tokens) { token in
+                TokenView(token: token, size: GameView.tokenSize)
+                    .onTapGesture {
+                        action(token)
+                    }
+            }
         }
     }
-}
 
-struct GameSettings: Equatable {
-    var skillLevel = SkillLevel.basic
-    var isTrainingMode = false
+    struct GridView: View {
 
-    enum SkillLevel {
-        case basic, expert
+        var body: some View {
+            VStack(spacing: GameView.tokenSpacing) {
+                fill(with: { row })
+            }
+            .frame(width: GameView.gridWidth, height: GameView.gridWidth)
+        }
+
+        private var row: some View {
+            HStack(spacing: GameView.tokenSpacing) {
+                fill(with: { cell })
+            }
+        }
+
+        private var cell: some View {
+            Circle()
+                .foregroundColor(.gridBackground)
+                .frame(width: GameView.tokenSize, height: GameView.tokenSize)
+        }
+
+        private func fill<Content: View>(with content: @escaping () -> Content) -> some View {
+            ForEach(1...GameViewModel.gridSize, id: \.self) { _ in
+                content()
+            }
+        }
     }
 }

@@ -171,7 +171,7 @@ extension LearnHowView {
         var body: some View {
             HStack(spacing: tokenSpacing) {
                 ForEach(tokens) {
-                    TokenView(token: $0, size: LearnHowView.tokenSize)
+                    TokenView(token: $0, size: LearnHowView.tokenSize, scale: 1)
                 }
             }
         }

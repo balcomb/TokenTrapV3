@@ -8,48 +8,46 @@
 import SwiftUI
 
 struct TokenView: View {
-    @State var token: Token
-    var size: CGFloat
+    @ObservedObject var token: Token
+    let size: CGFloat
     private var iconSize: CGFloat { size * 0.6 }
+    @State var scale = 0.1
 
     var body: some View {
         ZStack {
-            Circle().foregroundColor(.white)
-            Image(
-                token.icon.rawValue
-            )
-            .renderingMode(.template)
-            .resizable()
-            .scaledToFit()
-            .foregroundColor(Color(token.color.rawValue))
-            .frame(width: iconSize, height: iconSize)
+            background
+            icon
         }
         .frame(width: size, height: size)
     }
-}
 
-struct Token: Identifiable {
-    var id: String = UUID().uuidString
-
-    let color: Color
-    let icon: Icon
-
-    init(_ color: Color, _ icon: Icon) {
-        self.color = color
-        self.icon = icon
+    private var background: some View {
+        Circle().foregroundColor(circleColor)
     }
 
-    enum Icon: String, CaseIterable, Identifiable {
-        case die = "IconDie"
-        case face = "IconFace"
-        case star = "IconStar"
-
-        var id: String { self.rawValue }
+    private var icon: some View {
+        Image(
+            token.icon.rawValue
+        )
+        .renderingMode(.template)
+        .resizable()
+        .scaledToFit()
+        .foregroundColor(Color(token.color.rawValue))
+        .frame(width: iconSize, height: iconSize)
+        .scaleEffect(scale)
+        .onAppear {
+            withAnimation {
+                scale = 1
+            }
+        }
     }
 
-    enum Color: String, CaseIterable {
-        case blue = "TokenBlue"
-        case gray = "TokenGray"
-        case red = "TokenRed"
+    private var circleColor: Color {
+        switch token.selectionStatus {
+        case .none: return .white
+        case .selected: return .tokenBackgroundGreen
+        case .rejected: return .tokenBackgroundRed
+        case .keyMatch: return .tokenBackgroundGold
+        }
     }
 }

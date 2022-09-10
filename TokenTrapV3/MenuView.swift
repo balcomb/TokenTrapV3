@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MenuView: View {
     let action: (Coordinator.Destination) -> Void
-    @State private var skillLevel = GameSettings.SkillLevel.basic
+    @State private var skillLevel = GameViewModel.Settings.SkillLevel.basic
 
     private static var logoName: String { "Logo" }
     private static var logoWidth: CGFloat { UIImage(named: logoName)?.size.width ?? 0 }
@@ -52,8 +52,8 @@ struct MenuView: View {
 
     private var skillLevelSelector: some View {
         Picker("skillLevelSelector", selection: $skillLevel) {
-            Text("Basic").tag(GameSettings.SkillLevel.basic)
-            Text("Expert").tag(GameSettings.SkillLevel.expert)
+            Text("Basic").tag(GameViewModel.Settings.SkillLevel.basic)
+            Text("Expert").tag(GameViewModel.Settings.SkillLevel.expert)
         }
         .styled()
         .padding(.bottom)

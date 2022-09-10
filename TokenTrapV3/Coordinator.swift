@@ -11,7 +11,7 @@ struct Coordinator: View {
     @State private var isShowingGame = false
     @State private var isShowingLearnHow = false
 
-    @State private var gameSettings = GameSettings()
+    @State private var gameSettings = GameViewModel.Settings()
 
     var body: some View {
         NavigationView {
@@ -54,6 +54,6 @@ struct Coordinator: View {
 extension Coordinator {
     enum Destination: Equatable {
         case learnHow
-        case game(settings: GameSettings)
+        case game(settings: GameViewModel.Settings)
     }
 }
