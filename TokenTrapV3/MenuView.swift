@@ -10,6 +10,8 @@ import SwiftUI
 struct MenuView: View {
     let action: (Coordinator.Destination) -> Void
     @State private var skillLevel = GameViewModel.Settings.SkillLevel.basic
+    @State private var didAppear = false
+    @State private var controlOpacity: Double = 0
 
     private static var logoName: String { "Logo" }
     private static var logoWidth: CGFloat { UIImage(named: logoName)?.size.width ?? 0 }
@@ -17,19 +19,31 @@ struct MenuView: View {
     var body: some View {
         VStack {
             logo
+            if didAppear {
+                controls
+            }
+        }
+        .frame(width: Self.logoWidth)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.background)
+        .onAppear {
+            handleOnAppear()
+        }
+    }
+
+    private var logo: some View {
+        Image(Self.logoName)
+    }
+
+    private var controls: some View {
+        VStack {
             playButton
             skillLevelLabel
             skillLevelSelector
             learnHowButton
             trainingModeButton
         }
-        .frame(width: Self.logoWidth)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background)
-    }
-
-    private var logo: some View {
-        Image(Self.logoName).padding(.bottom)
+        .opacity(controlOpacity)
     }
 
     private var playButton: some View {
@@ -38,6 +52,7 @@ struct MenuView: View {
         }
         .tint(.buttonBlue)
         .buttonStyle(.borderedProminent)
+        .padding(.vertical)
     }
 
     private var skillLevelLabel: some View {
@@ -47,7 +62,6 @@ struct MenuView: View {
         .font(.caption)
         .fontWeight(.bold)
         .foregroundColor(.white)
-        .padding(.top)
     }
 
     private var skillLevelSelector: some View {
@@ -67,6 +81,17 @@ struct MenuView: View {
         makeSmallButton("Play in Training Mode") {
             action(.game(settings: .init(skillLevel: skillLevel, isTrainingMode: true)))
         }
+    }
+
+    private func handleOnAppear() {
+        SequencedAnimation.start([
+            SequencedAnimation(duration: 0.5) {
+                didAppear = true
+            },
+            SequencedAnimation {
+                controlOpacity = 1
+            }
+        ])
     }
 
     private func makeButton(_ text: String, action: @escaping () -> Void) -> some View {
