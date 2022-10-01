@@ -9,12 +9,32 @@ import SwiftUI
 
 class GameViewModel: ObservableObject {
     @Published var rows: [Row] = []
+    private(set) lazy var timeProgress = Progress(count: 4)
+    private(set) lazy var levelProgress = Progress(count: 10)
     var settings: Settings?
     static var gridSize: Int { 8 }
     private var selectedToken: Token?
     private var keyToken = Token(.red, .face)
 
-    func addRows() {
+    func startLevel() {
+        addRow()
+        startTimer()
+    }
+
+    private func startTimer() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.handleTimer()
+            self.startTimer()
+        }
+    }
+
+    private func handleTimer() {
+        timeProgress.updateValue()
+        guard timeProgress.currentValue == timeProgress.indicators.count else { return }
+        addRow()
+    }
+
+    private func addRow() {
         guard rows.count < 8 else {
             return
         }
@@ -24,9 +44,6 @@ class GameViewModel: ObservableObject {
             } else {
                 rows.insert(Row(), at: 0)
             }
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.addRows()
         }
     }
 
@@ -81,32 +98,28 @@ class GameViewModel: ObservableObject {
             tokens: newTokens,
             status: selectionResult == .partialMatch ? .selected : .keyMatch
         )
-        if selectionResult == .partialMatchKey {
-            clear(row: rowToClear, tokens: newTokens)
+        if let row = rowToClear, selectionResult == .partialMatchKey {
+            flashKeyPair(tokens: newTokens, in: row)
         }
     }
 
-    private func clear(row: Row?, tokens: [Token]) {
-        guard let row = row else {
-            return
-        }
-        flashKeyPair(tokens: tokens) {
-            withAnimation {
-                self.rows = self.rows.filter { $0 != row }
-            }
-        }
-    }
-
-    private func flashKeyPair(tokens: [Token], count: Int = 0, completion: @escaping () -> Void) {
+    private func flashKeyPair(tokens: [Token], in row: Row, count: Int = 0) {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
             tokens.forEach {
                 $0.selectionStatus = $0.selectionStatus == .none ? .keyMatch : .none
             }
             if count < 5 {
-                self.flashKeyPair(tokens: tokens, count: count + 1, completion: completion)
+                self.flashKeyPair(tokens: tokens, in: row, count: count + 1)
             } else {
-                completion()
+                self.clear(row)
             }
+        }
+    }
+
+    private func clear(_ row: Row) {
+        levelProgress.updateValue()
+        withAnimation {
+            rows = rows.filter { $0 != row }
         }
     }
 }
@@ -228,6 +241,26 @@ extension GameViewModel {
         case none
         case partialMatch
         case partialMatchKey
+    }
+
+    class Progress {
+        let indicators: [Indicator]
+        fileprivate var currentValue = 0
+
+        init(count: Int) {
+            indicators = (0..<count).map { _ in Indicator() }
+        }
+
+        func updateValue() {
+            currentValue = currentValue < indicators.count ? currentValue + 1 : 0
+            for (index, indicator) in indicators.enumerated() {
+                indicator.isOn = index < currentValue
+            }
+        }
+
+        class Indicator: GameViewModelObject {
+            @Published var isOn = false
+        }
     }
 }
 

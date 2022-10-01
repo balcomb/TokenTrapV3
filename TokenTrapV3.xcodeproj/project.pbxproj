@@ -10,6 +10,7 @@
 		B532CFB128CD0C3A001B21AF /* GameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B532CFB028CD0C3A001B21AF /* GameViewModel.swift */; };
 		B532CFB328CD2605001B21AF /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = B532CFB228CD2605001B21AF /* Token.swift */; };
 		B532CFB528D79E84001B21AF /* SequencedAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B532CFB428D79E84001B21AF /* SequencedAnimation.swift */; };
+		B532CFB728E8E390001B21AF /* GameView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B532CFB628E8E38F001B21AF /* GameView+Extensions.swift */; };
 		B5D273952896D55900B7119A /* TokenTrapV3App.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273942896D55900B7119A /* TokenTrapV3App.swift */; };
 		B5D273972896D55900B7119A /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273962896D55900B7119A /* MenuView.swift */; };
 		B5D273992896D55C00B7119A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5D273982896D55C00B7119A /* Assets.xcassets */; };
@@ -46,6 +47,7 @@
 		B532CFB028CD0C3A001B21AF /* GameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewModel.swift; sourceTree = "<group>"; };
 		B532CFB228CD2605001B21AF /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		B532CFB428D79E84001B21AF /* SequencedAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencedAnimation.swift; sourceTree = "<group>"; };
+		B532CFB628E8E38F001B21AF /* GameView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GameView+Extensions.swift"; sourceTree = "<group>"; };
 		B5D273912896D55900B7119A /* TokenTrapV3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TokenTrapV3.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5D273942896D55900B7119A /* TokenTrapV3App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTrapV3App.swift; sourceTree = "<group>"; };
 		B5D273962896D55900B7119A /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 				B5D273962896D55900B7119A /* MenuView.swift */,
 				B532CFB028CD0C3A001B21AF /* GameViewModel.swift */,
 				B5D273C528A0260E00B7119A /* GameView.swift */,
+				B532CFB628E8E38F001B21AF /* GameView+Extensions.swift */,
 				B5D273C12896E29400B7119A /* StyledPicker.swift */,
 				B5D273C728A0263500B7119A /* LearnHowView.swift */,
 				B5D273C328A025E500B7119A /* Color+Extensions.swift */,
@@ -294,6 +297,7 @@
 				B5D273972896D55900B7119A /* MenuView.swift in Sources */,
 				B5D273C828A0263500B7119A /* LearnHowView.swift in Sources */,
 				B5D273952896D55900B7119A /* TokenTrapV3App.swift in Sources */,
+				B532CFB728E8E390001B21AF /* GameView+Extensions.swift in Sources */,
 				B5D273C628A0260E00B7119A /* GameView.swift in Sources */,
 				B5D273CA28A7F74500B7119A /* TokenView.swift in Sources */,
 				B5D273BF2896D59200B7119A /* Coordinator.swift in Sources */,

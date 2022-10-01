@@ -22,7 +22,9 @@ struct GameView: View {
     var body: some View {
         VStack(spacing: 0) {
             topControls
+            timeProgressView
             boardContainer
+            levelProgressView
             bottomControls
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -30,7 +32,7 @@ struct GameView: View {
         .onAppear {
             viewModel.settings = settings
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                viewModel.addRows()
+                viewModel.startLevel()
             }
         }
     }
@@ -41,6 +43,22 @@ struct GameView: View {
             Button("dismiss") { completion() }.foregroundColor(.yellow)
             Spacer()
         }
+    }
+
+    private var timeProgressView: some View {
+        ProgressView(
+            viewModel: viewModel.timeProgress,
+            width: Self.boardWidth,
+            style: .time
+        )
+    }
+
+    private var levelProgressView: some View {
+        ProgressView(
+            viewModel: viewModel.levelProgress,
+            width: Self.boardWidth,
+            style: .level
+        )
     }
 
     private var boardContainer: some View {
@@ -71,64 +89,6 @@ struct GameView: View {
             Spacer()
             Text("this is it")
             Spacer()
-        }
-    }
-}
-
-extension GameView {
-
-    struct RowView: View {
-        @ObservedObject var row: GameViewModel.Row
-        @State private var scale = 0.7
-        let action: (Token) -> Void
-
-        var body: some View {
-            HStack(spacing: GameView.tokenSpacing) {
-                getTokenViews()
-            }
-            .scaleEffect(scale)
-            .onAppear {
-                withAnimation {
-                    scale = 1
-                }
-            }
-        }
-
-        private func getTokenViews() -> some View {
-            ForEach(row.tokens) { token in
-                TokenView(token: token, size: GameView.tokenSize)
-                    .onTapGesture {
-                        action(token)
-                    }
-            }
-        }
-    }
-
-    struct GridView: View {
-
-        var body: some View {
-            VStack(spacing: GameView.tokenSpacing) {
-                fill(with: { row })
-            }
-            .frame(width: GameView.gridWidth, height: GameView.gridWidth)
-        }
-
-        private var row: some View {
-            HStack(spacing: GameView.tokenSpacing) {
-                fill(with: { cell })
-            }
-        }
-
-        private var cell: some View {
-            Circle()
-                .foregroundColor(.gridBackground)
-                .frame(width: GameView.tokenSize, height: GameView.tokenSize)
-        }
-
-        private func fill<Content: View>(with content: @escaping () -> Content) -> some View {
-            ForEach(1...GameViewModel.gridSize, id: \.self) { _ in
-                content()
-            }
         }
     }
 }
