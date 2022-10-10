@@ -106,10 +106,14 @@ extension GameView {
         let colors: (on: Color, off: Color)
         static var weight: CGFloat { 4 }
 
+        private var color: Color {
+            viewModel.isWarningOn ? .red : viewModel.isOn ? colors.on : colors.off
+        }
+
         var body: some View {
             Rectangle()
                 .cornerRadius(Self.weight / 2)
-                .foregroundColor(viewModel.isOn ? colors.on : colors.off)
+                .foregroundColor(color)
                 .frame(width: width, height: Self.weight)
         }
     }

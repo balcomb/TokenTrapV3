@@ -31,8 +31,8 @@ struct GameView: View {
         .background(Color.background)
         .onAppear {
             viewModel.settings = settings
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                viewModel.startLevel()
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(750)) {
+                viewModel.startNewGame()
             }
         }
     }
@@ -62,9 +62,15 @@ struct GameView: View {
     }
 
     private var boardContainer: some View {
-        ZStack {
-            GridView()
-            rows
+        let gridOpacity = viewModel.gameStatus == .gameOver ? 0.3 : 1
+        let rowOpacity = viewModel.gameStatus == .active ? 1 : 0.7
+        return ZStack {
+            GridView().opacity(gridOpacity)
+            if viewModel.gameStatus == .gameOver {
+                gameOverView
+            } else {
+                rows.opacity(rowOpacity)
+            }
         }
         .frame(width: Self.boardWidth, height: Self.boardWidth)
         .background(Color.boardBackground)
@@ -77,11 +83,21 @@ struct GameView: View {
             }
             ForEach(viewModel.rows) { row in
                 RowView(row: row) {
-                    viewModel.handleTap(token: $0)
+                    viewModel.handleTap(token: $0, in: row)
                 }
             }
         }
         .frame(width: Self.gridWidth, height: Self.gridWidth)
+    }
+
+    private var gameOverView: some View {
+        VStack {
+            Text("Game Over")
+                .font(.largeTitle)
+                .bold()
+                .foregroundColor(.yellow)
+            Button("new game") { viewModel.startNewGame() }.foregroundColor(.yellow)
+        }
     }
 
     private var bottomControls: some View {

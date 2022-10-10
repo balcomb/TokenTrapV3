@@ -9,45 +9,78 @@ import SwiftUI
 
 class GameViewModel: ObservableObject {
     @Published var rows: [Row] = []
+    @Published var gameStatus = GameStatus.active
     private(set) lazy var timeProgress = Progress(count: 4)
     private(set) lazy var levelProgress = Progress(count: 10)
     var settings: Settings?
     static var gridSize: Int { 8 }
     private var selectedToken: Token?
     private var keyToken = Token(.red, .face)
+    private var timer: Timer?
+    private var timeInterval: TimeInterval = 1
 
-    func startLevel() {
+    private var canAddRows: Bool {
+        rows.count < Self.gridSize
+    }
+
+    func startNewGame() {
+        if gameStatus != .active {
+            resetGame()
+        }
+        startLevel()
+    }
+
+    private func resetGame() {
+        rows = []
+        gameStatus = .active
+        timeProgress.reset()
+        levelProgress.reset()
+    }
+
+    private func startLevel() {
         addRow()
         startTimer()
     }
 
     private func startTimer() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.handleTimer()
-            self.startTimer()
+        timer = .scheduledTimer(withTimeInterval: timeInterval, repeats: true) { [weak self] _ in
+            self?.handleTimer()
         }
     }
 
     private func handleTimer() {
         timeProgress.updateValue()
-        guard timeProgress.currentValue == timeProgress.indicators.count else { return }
+        guard timeProgress.isComplete else {
+            return
+        }
+        guard canAddRows else {
+            handleGameOver()
+            return
+        }
         addRow()
     }
 
     private func addRow() {
-        guard rows.count < 8 else {
-            return
-        }
         withAnimation {
-            if false && !rows.isEmpty && Bool.random() {
-                rows.remove(at: .random(in: 0..<rows.count))
-            } else {
-                rows.insert(Row(), at: 0)
+            rows.insert(Row(), at: 0)
+        }
+    }
+
+    private func handleGameOver() {
+        timer?.invalidate()
+        gameStatus = .complete
+        timeProgress.activateWarning()
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+            withAnimation {
+                self.gameStatus = .gameOver
             }
         }
     }
 
-    func handleTap(token: Token) {
+    func handleTap(token: Token, in row: Row) {
+        guard gameStatus == .active, row.isActive else {
+            return
+        }
         guard let selectedToken = selectedToken else {
             token.selectionStatus = .selected
             selectedToken = token
@@ -99,6 +132,8 @@ class GameViewModel: ObservableObject {
             status: selectionResult == .partialMatch ? .selected : .keyMatch
         )
         if let row = rowToClear, selectionResult == .partialMatchKey {
+            timer?.invalidate()
+            row.isActive = false
             flashKeyPair(tokens: newTokens, in: row)
         }
     }
@@ -121,6 +156,11 @@ class GameViewModel: ObservableObject {
         withAnimation {
             rows = rows.filter { $0 != row }
         }
+        if rows.isEmpty {
+            timeProgress.reset()
+            addRow()
+        }
+        startTimer()
     }
 }
 
@@ -205,6 +245,12 @@ extension GameViewModel {
 
 extension GameViewModel {
 
+    enum GameStatus {
+        case active
+        case complete
+        case gameOver
+    }
+
     struct Settings: Equatable {
         var skillLevel = SkillLevel.basic
         var isTrainingMode = false
@@ -216,6 +262,7 @@ extension GameViewModel {
 
     class Row: GameViewModelObject {
         let id = UUID()
+        var isActive = true
 
         @Published var tokens: [Token] = {
             var tokens: [Token] = []
@@ -247,6 +294,10 @@ extension GameViewModel {
         let indicators: [Indicator]
         fileprivate var currentValue = 0
 
+        var isComplete: Bool {
+            currentValue == indicators.count
+        }
+
         init(count: Int) {
             indicators = (0..<count).map { _ in Indicator() }
         }
@@ -258,8 +309,23 @@ extension GameViewModel {
             }
         }
 
+        func reset() {
+            currentValue = 0
+            indicators.forEach {
+                $0.isOn = false
+                $0.isWarningOn = false
+            }
+        }
+
+        func activateWarning() {
+            indicators.forEach {
+                $0.isWarningOn = true
+            }
+        }
+
         class Indicator: GameViewModelObject {
             @Published var isOn = false
+            @Published var isWarningOn = false
         }
     }
 }
