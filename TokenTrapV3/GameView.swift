@@ -66,10 +66,10 @@ struct GameView: View {
         let rowOpacity = viewModel.gameStatus == .active ? 1 : 0.7
         return ZStack {
             GridView().opacity(gridOpacity)
-            if viewModel.gameStatus == .gameOver {
-                gameOverView
-            } else {
-                rows.opacity(rowOpacity)
+            switch viewModel.gameStatus {
+            case .gameOver: gameOverView
+            case .levelComplete: levelCompleteView
+            default: rows.opacity(rowOpacity)
             }
         }
         .frame(width: Self.boardWidth, height: Self.boardWidth)
@@ -88,6 +88,13 @@ struct GameView: View {
             }
         }
         .frame(width: Self.gridWidth, height: Self.gridWidth)
+    }
+
+    private var levelCompleteView: some View {
+        Text("Level Complete")
+            .font(.largeTitle)
+            .bold()
+            .foregroundColor(.white)
     }
 
     private var gameOverView: some View {

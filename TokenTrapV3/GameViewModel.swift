@@ -62,13 +62,13 @@ class GameViewModel: ObservableObject {
 
     private func addRow() {
         withAnimation {
-            rows.insert(Row(), at: 0)
+            rows.insert(Row(keyToken: keyToken), at: 0)
         }
     }
 
     private func handleGameOver() {
         timer?.invalidate()
-        gameStatus = .complete
+        gameStatus = .inactive
         timeProgress.activateWarning()
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
             withAnimation {
@@ -156,11 +156,31 @@ class GameViewModel: ObservableObject {
         withAnimation {
             rows = rows.filter { $0 != row }
         }
+        if levelProgress.isComplete {
+            gameStatus = .inactive
+            timeProgress.reset()
+            flashLevelProgress()
+            return
+        }
         if rows.isEmpty {
             timeProgress.reset()
             addRow()
         }
         startTimer()
+    }
+
+    private func flashLevelProgress(count: Int = 0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
+            let levelProgress = self.levelProgress
+            levelProgress.isComplete ? levelProgress.reset() : levelProgress.setComplete()
+            if count < 5 {
+                self.flashLevelProgress(count: count + 1)
+            } else {
+                withAnimation {
+                    self.gameStatus = .levelComplete
+                }
+            }
+        }
     }
 }
 
@@ -247,7 +267,8 @@ extension GameViewModel {
 
     enum GameStatus {
         case active
-        case complete
+        case inactive
+        case levelComplete
         case gameOver
     }
 
@@ -264,18 +285,23 @@ extension GameViewModel {
         let id = UUID()
         var isActive = true
 
-        @Published var tokens: [Token] = {
-            var tokens: [Token] = []
-            while tokens.count < GameViewModel.gridSize {
-                tokens.append(
-                    Token(
-                        Token.Color.allCases.randomElement()!,
-                        Token.Icon.allCases.randomElement()!
-                    )
+        @Published var tokens: [Token]
+
+        init(keyToken: Token) {
+            tokens = Self.getTokens(keyToken: keyToken)
+        }
+
+        static func getTokens(keyToken: Token) -> [Token] {
+            (0..<GameViewModel.gridSize).map { index in
+                if index < 2 {
+                    return Token(Token.Color.allCases.filter({ $0 != keyToken.color })[index], keyToken.icon)
+                }
+                return Token(
+                    Token.Color.allCases.randomElement()!,
+                    Token.Icon.allCases.randomElement()!
                 )
             }
-            return tokens
-        }()
+        }
     }
 
     enum AdjacencyResult {
@@ -320,6 +346,13 @@ extension GameViewModel {
         func activateWarning() {
             indicators.forEach {
                 $0.isWarningOn = true
+            }
+        }
+
+        func setComplete() {
+            currentValue = indicators.count
+            indicators.forEach {
+                $0.isOn = true
             }
         }
 
