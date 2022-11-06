@@ -40,9 +40,41 @@ struct GameView: View {
     private var topControls: some View {
         VStack {
             Spacer()
-            Button("dismiss") { completion() }.foregroundColor(.yellow)
+            VStack {
+                pauseControl
+                targetIndicator
+            }
             Spacer()
         }
+        .frame(width: Self.boardWidth)
+    }
+
+    private var pauseControl: some View {
+        let imageSize = 32.0
+        return HStack {
+            Button {
+                completion()
+            } label: {
+                Image(systemName: "pause.circle")
+                    .resizable()
+                    .tint(.white)
+                    .frame(width: imageSize, height: imageSize)
+                    .padding()
+            }
+            Spacer()
+        }
+    }
+
+    private var targetIndicator: some View {
+        HStack {
+            Spacer()
+            if let keyToken = viewModel.keyToken {
+                GameText("TARGET TOKEN  \u{25B6}", style: .detail)
+                TokenView(token: keyToken, size: Self.tokenSize * 0.8)
+            }
+        }
+        .frame(height: Self.tokenSize)
+        .padding()
     }
 
     private var timeProgressView: some View {
@@ -68,6 +100,7 @@ struct GameView: View {
             GridView().opacity(gridOpacity)
             switch viewModel.gameStatus {
             case .gameOver: gameOverView
+            case .levelBegin: levelBeginView
             case .levelComplete: levelCompleteView
             default: rows.opacity(rowOpacity)
             }
@@ -90,19 +123,20 @@ struct GameView: View {
         .frame(width: Self.gridWidth, height: Self.gridWidth)
     }
 
+    private var levelBeginView: some View {
+        VStack {
+            GameText("Begin Level \(viewModel.level)")
+            GameText("\(viewModel.levelCountdown)", style: .primaryHot)
+        }
+    }
+
     private var levelCompleteView: some View {
-        Text("Level Complete")
-            .font(.largeTitle)
-            .bold()
-            .foregroundColor(.white)
+        GameText("Level Complete")
     }
 
     private var gameOverView: some View {
         VStack {
-            Text("Game Over")
-                .font(.largeTitle)
-                .bold()
-                .foregroundColor(.yellow)
+            GameText("Game Over", style: .primaryHot)
             Button("new game") { viewModel.startNewGame() }.foregroundColor(.yellow)
         }
     }

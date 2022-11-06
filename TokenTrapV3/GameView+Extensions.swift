@@ -9,6 +9,43 @@ import SwiftUI
 
 extension GameView {
 
+    struct GameText: View {
+        private let content: String
+        private let style: Style
+
+        private var color: Color {
+            switch style {
+            case .primary, .detail: return .white
+            case .primaryHot: return .yellow
+            }
+        }
+
+        private var font: Font {
+            switch style {
+            case .primary, .primaryHot: return .largeTitle
+            case .detail: return .callout
+            }
+        }
+
+        init(_ content: String, style: Style = .primary) {
+            self.content = content
+            self.style = style
+        }
+
+        var body: some View {
+            Text(content)
+                .font(font)
+                .fontWeight(.heavy)
+                .foregroundColor(color)
+        }
+
+        enum Style {
+            case primary
+            case primaryHot
+            case detail
+        }
+    }
+
     struct RowView: View {
         @ObservedObject var row: GameViewModel.Row
         @State private var scale = 0.7

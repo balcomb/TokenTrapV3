@@ -10,12 +10,14 @@ import SwiftUI
 class GameViewModel: ObservableObject {
     @Published var rows: [Row] = []
     @Published var gameStatus = GameStatus.active
+    @Published var level = 0
+    @Published var keyToken: Token?
+    @Published var levelCountdown = ""
+    static var gridSize: Int { 8 }
+    var settings: Settings?
     private(set) lazy var timeProgress = Progress(count: 4)
     private(set) lazy var levelProgress = Progress(count: 10)
-    var settings: Settings?
-    static var gridSize: Int { 8 }
     private var selectedToken: Token?
-    private var keyToken = Token(.red, .face)
     private var timer: Timer?
     private var timeInterval: TimeInterval = 1
 
@@ -32,17 +34,51 @@ class GameViewModel: ObservableObject {
 
     private func resetGame() {
         rows = []
+        level = 0
         gameStatus = .active
         timeProgress.reset()
-        levelProgress.reset()
     }
 
     private func startLevel() {
-        addRow()
-        startTimer()
+        level = level + 1
+        levelProgress.reset()
+        showTarget()
+        showLevelStart { [weak self] in
+            self?.addRow()
+            self?.startTimer()
+        }
+    }
+
+    private func showTarget() {
+        withAnimation {
+            let keyToken = Token(.allCases.randomElement()!, .allCases.randomElement()!)
+            keyToken.selectionStatus = .keyMatch
+            self.keyToken = keyToken
+        }
+    }
+
+    private func showLevelStart(completion: @escaping (() -> Void)) {
+        levelCountdown = " "
+        var sequence = [
+            SequencedAnimation(duration: 1) {
+                self.gameStatus = .levelBegin
+            },
+            SequencedAnimation(duration: 0.5) {
+                self.gameStatus = .active
+            }
+        ]
+        let messages = ["Ready", "Set", "GO!"]
+        let countdownSubsequence: [SequencedAnimation] = messages.map { message in
+            SequencedAnimation(duration: 0.5, delay: message == messages.last ? 0.75 : 0.5) {
+                self.levelCountdown = message
+            }
+        }
+        sequence.insert(contentsOf: countdownSubsequence, at: 1)
+        SequencedAnimation.start(sequence, completion: completion)
     }
 
     private func startTimer() {
+        timer?.invalidate()
         timer = .scheduledTimer(withTimeInterval: timeInterval, repeats: true) { [weak self] _ in
             self?.handleTimer()
         }
@@ -61,6 +97,7 @@ class GameViewModel: ObservableObject {
     }
 
     private func addRow() {
+        guard let keyToken = keyToken else { return }
         withAnimation {
             rows.insert(Row(keyToken: keyToken), at: 0)
         }
@@ -173,13 +210,28 @@ class GameViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
             let levelProgress = self.levelProgress
             levelProgress.isComplete ? levelProgress.reset() : levelProgress.setComplete()
-            if count < 5 {
-                self.flashLevelProgress(count: count + 1)
-            } else {
-                withAnimation {
-                    self.gameStatus = .levelComplete
-                }
+            guard count < 5 else {
+                self.showLevelComplete()
+                return
             }
+            self.flashLevelProgress(count: count + 1)
+        }
+    }
+
+    private func showLevelComplete() {
+        SequencedAnimation.start([
+            SequencedAnimation {
+                self.gameStatus = .levelComplete
+            },
+            SequencedAnimation(duration: 0.5, delay: 1) {
+                self.keyToken = nil
+                self.rows = []
+            },
+            SequencedAnimation {
+                self.gameStatus = .inactive
+            }
+        ]) {
+            self.startLevel()
         }
     }
 }
@@ -221,7 +273,9 @@ extension GameViewModel {
     }
 
     private func getPartialMatchType(_ token1: Token, _ token2: Token) -> SelectionResult {
-        guard let convertedToken = getConvertedToken(token1, token2) else {
+        guard let convertedToken = getConvertedToken(token1, token2),
+              let keyToken = keyToken
+        else {
             return .none
         }
         return isMatch(convertedToken, keyToken) ? .partialMatchKey : .partialMatch
@@ -268,6 +322,7 @@ extension GameViewModel {
     enum GameStatus {
         case active
         case inactive
+        case levelBegin
         case levelComplete
         case gameOver
     }
