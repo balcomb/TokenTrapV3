@@ -37,6 +37,7 @@ extension GameView {
                 .font(font)
                 .fontWeight(.heavy)
                 .foregroundColor(color)
+                .id(content) // hack for getting animations right on iOS 15
         }
 
         enum Style {

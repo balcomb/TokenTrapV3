@@ -18,6 +18,7 @@ struct GameView: View {
     static var gridWidth: CGFloat { GameView.boardWidth - (2 * tokenSpacing) }
     static var tokenSpacing: CGFloat { 1 }
     static var tokenSize: CGFloat { (gridWidth / CGFloat(GameViewModel.gridSize)) - tokenSpacing }
+    private var topControlSize: CGFloat { 32 }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -38,43 +39,37 @@ struct GameView: View {
     }
 
     private var topControls: some View {
-        VStack {
+        VStack(spacing: 0) {
             Spacer()
-            VStack {
-                pauseControl
+            HStack {
+                pauseButton
+                Spacer()
                 targetIndicator
             }
-            Spacer()
         }
         .frame(width: Self.boardWidth)
     }
 
-    private var pauseControl: some View {
-        let imageSize = 32.0
-        return HStack {
-            Button {
-                completion()
-            } label: {
-                Image(systemName: "pause.circle")
-                    .resizable()
-                    .tint(.white)
-                    .frame(width: imageSize, height: imageSize)
-                    .padding()
-            }
-            Spacer()
+    private var pauseButton: some View {
+        Button {
+            completion()
+        } label: {
+            Image(systemName: "pause.circle")
+                .resizable()
+                .tint(.white)
+                .frame(width: topControlSize, height: topControlSize)
+                .padding()
         }
     }
 
     private var targetIndicator: some View {
         HStack {
-            Spacer()
             if let keyToken = viewModel.keyToken {
                 GameText("TARGET TOKEN  \u{25B6}", style: .detail)
-                TokenView(token: keyToken, size: Self.tokenSize * 0.8)
+                TokenView(token: keyToken, size: topControlSize)
             }
         }
-        .frame(height: Self.tokenSize)
-        .padding()
+        .padding(.horizontal)
     }
 
     private var timeProgressView: some View {
@@ -148,6 +143,6 @@ struct GameView: View {
             Spacer()
         }
         .frame(width: Self.boardWidth)
-        .padding(.vertical)
+        .padding(.top, 8)
     }
 }
