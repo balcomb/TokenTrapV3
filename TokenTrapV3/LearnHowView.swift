@@ -72,7 +72,7 @@ extension LearnHowView {
             Strings.headline
         )
         .font(.title2.weight(.bold))
-        .foregroundColor(.yellow)
+        .foregroundColor(.tokenBackgroundGold)
     }
 
     private var section1: some View {

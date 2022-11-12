@@ -10,7 +10,8 @@ import SwiftUI
 class GameViewModel: ObservableObject {
     @Published var rows: [Row] = []
     @Published var gameStatus = GameStatus.active
-    @Published var level = 0
+    @Published var level = 1
+    @Published var score = 0
     @Published var keyToken: Token?
     @Published var levelCountdown = ""
     static var gridSize: Int { 8 }
@@ -29,18 +30,18 @@ class GameViewModel: ObservableObject {
         if gameStatus != .active {
             resetGame()
         }
-        startLevel()
+        startLevel(level)
     }
 
     private func resetGame() {
         rows = []
-        level = 0
+        level = 1
         gameStatus = .active
         timeProgress.reset()
     }
 
-    private func startLevel() {
-        level = level + 1
+    private func startLevel(_ level: Int? = nil) {
+        self.level = level ?? self.level + 1
         levelProgress.reset()
         showTarget()
         showLevelStart { [weak self] in
@@ -172,6 +173,14 @@ class GameViewModel: ObservableObject {
             timer?.invalidate()
             row.isActive = false
             flashKeyPair(tokens: newTokens, in: row)
+            updateScore(clearedRow: row)
+        }
+    }
+
+    private func updateScore(clearedRow: Row) {
+        let rowValue = 5 // TODO: calculate bonus points
+        withAnimation {
+            score += rowValue
         }
     }
 

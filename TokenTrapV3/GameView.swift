@@ -25,7 +25,7 @@ struct GameView: View {
             timeProgressView
             boardContainer
             levelProgressView
-            bottomControls
+            scoreboard
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
@@ -137,15 +137,17 @@ struct GameView: View {
     private var gameOverView: some View {
         VStack {
             GameText("Game Over", style: .primaryHot)
-            Button("new game") { viewModel.startNewGame() }.foregroundColor(.yellow)
+            Button("new game") { viewModel.startNewGame() }.foregroundColor(.tokenBackgroundGold)
         }
     }
 
-    private var bottomControls: some View {
+    private var scoreboard: some View {
         VStack {
-            Spacer()
-            Text("this is it")
+            ScoreboardView(leadingText: "LEVEL", trailingText: "SCORE", style: .detail)
+            ScoreboardView(leadingText: "\(viewModel.level)", trailingText: "\(viewModel.score)")
             Spacer()
         }
+        .frame(width: Self.boardWidth)
+        .padding(.vertical)
     }
 }

@@ -16,7 +16,7 @@ extension GameView {
         private var color: Color {
             switch style {
             case .primary, .detail: return .white
-            case .primaryHot: return .yellow
+            case .primaryHot: return .tokenBackgroundGold
             }
         }
 
@@ -115,7 +115,7 @@ extension GameView {
             case .time:
                 colors = (.green, .darkGreen)
             case .level:
-                colors = (.yellow, .progressOff)
+                colors = (.tokenBackgroundGold, .progressOff)
             }
         }
 
@@ -152,6 +152,22 @@ extension GameView {
                 .cornerRadius(Self.weight / 2)
                 .foregroundColor(color)
                 .frame(width: width, height: Self.weight)
+        }
+    }
+
+    struct ScoreboardView: View {
+        let leadingText: String
+        let trailingText: String
+        var style = GameText.Style.primary
+
+        var body: some View {
+            HStack {
+                GameText(leadingText, style: style)
+                Spacer()
+                GameText(trailingText, style: style)
+            }
+            .opacity(style == .detail ? 0.7 : 1)
+            .padding(.horizontal)
         }
     }
 }
