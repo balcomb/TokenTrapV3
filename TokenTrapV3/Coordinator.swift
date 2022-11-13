@@ -17,6 +17,7 @@ struct Coordinator: View {
         NavigationView {
             menu
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .sheet(isPresented: $isShowingLearnHow) {
             LearnHowView(isShowingLearnHow: $isShowingLearnHow)
         }

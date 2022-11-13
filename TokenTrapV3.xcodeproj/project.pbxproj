@@ -24,6 +24,7 @@
 		B5D273C628A0260E00B7119A /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C528A0260E00B7119A /* GameView.swift */; };
 		B5D273C828A0263500B7119A /* LearnHowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C728A0263500B7119A /* LearnHowView.swift */; };
 		B5D273CA28A7F74500B7119A /* TokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C928A7F74500B7119A /* TokenView.swift */; };
+		FF2D53B629214EF8005824DD /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF2D53B529214EF8005824DD /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 		B5D273C528A0260E00B7119A /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		B5D273C728A0263500B7119A /* LearnHowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnHowView.swift; sourceTree = "<group>"; };
 		B5D273C928A7F74500B7119A /* TokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenView.swift; sourceTree = "<group>"; };
+		FF2D53B529214EF8005824DD /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +132,7 @@
 				B532CFB428D79E84001B21AF /* SequencedAnimation.swift */,
 				B5D273982896D55C00B7119A /* Assets.xcassets */,
 				B5D2739A2896D55C00B7119A /* Preview Content */,
+				FF2D53B529214EF8005824DD /* Launch Screen.storyboard */,
 			);
 			path = TokenTrapV3;
 			sourceTree = "<group>";
@@ -263,6 +266,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF2D53B629214EF8005824DD /* Launch Screen.storyboard in Resources */,
 				B5D2739C2896D55C00B7119A /* Preview Assets.xcassets in Resources */,
 				B5D273992896D55C00B7119A /* Assets.xcassets in Resources */,
 			);
@@ -465,6 +469,7 @@
 				INFOPLIST_FILE = TokenTrapV3/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -494,6 +499,7 @@
 				INFOPLIST_FILE = TokenTrapV3/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
