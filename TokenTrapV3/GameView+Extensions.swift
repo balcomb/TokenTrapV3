@@ -96,7 +96,7 @@ extension GameView {
         }
 
         private func fill<Content: View>(with content: @escaping () -> Content) -> some View {
-            ForEach(1...GameViewModel.gridSize, id: \.self) { _ in
+            ForEach(1...GameLogic.gridSize, id: \.self) { _ in
                 content()
             }
         }

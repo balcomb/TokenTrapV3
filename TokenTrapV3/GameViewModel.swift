@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 class GameViewModel: ObservableObject {
     @Published var rows: [Row] = []
     @Published var gameStatus = GameStatus.active
@@ -14,16 +15,23 @@ class GameViewModel: ObservableObject {
     @Published var score = 0
     @Published var keyToken: Token?
     @Published var levelCountdown = ""
-    static var gridSize: Int { 8 }
     var settings: Settings?
     private(set) lazy var timeProgress = Progress(count: 4)
     private(set) lazy var levelProgress = Progress(count: 10)
-    private var selectedToken: Token?
     private var timer: Timer?
     private var timeInterval: TimeInterval = 1
+    private lazy var gameLogic = GameLogic()
 
-    private var canAddRows: Bool {
-        rows.count < Self.gridSize
+    init() {
+        monitorScore()
+    }
+
+    private func monitorScore() {
+        Task {
+            for await value in gameLogic.scoreStream {
+                score = value
+            }
+        }
     }
 
     func startNewGame() {
@@ -34,6 +42,7 @@ class GameViewModel: ObservableObject {
     }
 
     private func resetGame() {
+        gameLogic.reset()
         rows = []
         level = 1
         gameStatus = .active
@@ -52,7 +61,7 @@ class GameViewModel: ObservableObject {
 
     private func showTarget() {
         withAnimation {
-            let keyToken = Token(.allCases.randomElement()!, .allCases.randomElement()!)
+            let keyToken = gameLogic.getKeyToken()
             keyToken.selectionStatus = .keyMatch
             self.keyToken = keyToken
         }
@@ -81,7 +90,12 @@ class GameViewModel: ObservableObject {
     private func startTimer() {
         timer?.invalidate()
         timer = .scheduledTimer(withTimeInterval: timeInterval, repeats: true) { [weak self] _ in
-            self?.handleTimer()
+            guard let self = self else {
+                return
+            }
+            DispatchQueue.main.async {
+                self.handleTimer()
+            }
         }
     }
 
@@ -90,7 +104,7 @@ class GameViewModel: ObservableObject {
         guard timeProgress.isComplete else {
             return
         }
-        guard canAddRows else {
+        guard gameLogic.canAddRows else {
             handleGameOver()
             return
         }
@@ -98,9 +112,8 @@ class GameViewModel: ObservableObject {
     }
 
     private func addRow() {
-        guard let keyToken = keyToken else { return }
         withAnimation {
-            rows.insert(Row(keyToken: keyToken), at: 0)
+            rows.insert(Row(tokens: gameLogic.getRowTokens()), at: 0)
         }
     }
 
@@ -119,20 +132,17 @@ class GameViewModel: ObservableObject {
         guard gameStatus == .active, row.isActive else {
             return
         }
-        guard let selectedToken = selectedToken else {
-            token.selectionStatus = .selected
-            selectedToken = token
-            return
-        }
-        let tokens = [token, selectedToken]
-        let selectionResult = getSelctionResult(token, selectedToken)
+        let selectionResult = gameLogic.getSelectionResult(token: token)
         switch selectionResult {
-        case .none:
+        case .firstSelection:
+            token.selectionStatus = .selected
+        case .none(let tokens):
             updateSelectionStatus(tokens: tokens, status: .rejected)
-        case .partialMatch, .partialMatchKey:
-            handlePartialMatch(tokens: tokens, selectionResult: selectionResult)
+        case .partialMatch(let tokens):
+            handlePartialMatch(tokens: tokens)
+        case .partialMatchKey(let tokens):
+            handlePartialMatch(tokens: tokens, rowToClear: row)
         }
-        self.selectedToken = nil
     }
 
     private func updateSelectionStatus(tokens: [Token], status: Token.SelectionStatus) {
@@ -145,43 +155,20 @@ class GameViewModel: ObservableObject {
         }
     }
 
-    private func handlePartialMatch(tokens: [Token], selectionResult: SelectionResult) {
-        guard let token1 = tokens.first,
-              let token2 = tokens.last,
-              let convertedToken = getConvertedToken(token1, token2)
-        else {
+    private func handlePartialMatch(tokens: [Token], rowToClear: Row? = nil) {
+        guard let newTokens = gameLogic.getConvertedTokens(keyMatchTokens: tokens) else {
             return
         }
-        var newTokens: [Token] = []
-        var rowToClear: Row?
-        tokens.forEach { token in
-            guard let row = rows.first(where: { $0.tokens.contains(token) }),
-                  let tokenIndex = row.tokens.firstIndex(of: token)
-            else {
-                return
-            }
-            let newToken = Token(convertedToken.color, convertedToken.icon)
-            row.tokens[tokenIndex] = newToken
-            newTokens.append(newToken)
-            rowToClear = row
+        for (index, row) in rows.enumerated() {
+            row.tokens = gameLogic.rows[index]
         }
-        updateSelectionStatus(
-            tokens: newTokens,
-            status: selectionResult == .partialMatch ? .selected : .keyMatch
-        )
-        if let row = rowToClear, selectionResult == .partialMatchKey {
-            timer?.invalidate()
-            row.isActive = false
-            flashKeyPair(tokens: newTokens, in: row)
-            updateScore(clearedRow: row)
+        updateSelectionStatus(tokens: newTokens, status: rowToClear == nil ? .selected : .keyMatch)
+        guard let rowToClear = rowToClear else {
+            return
         }
-    }
-
-    private func updateScore(clearedRow: Row) {
-        let rowValue = 5 // TODO: calculate bonus points
-        withAnimation {
-            score += rowValue
-        }
+        timer?.invalidate()
+        rowToClear.isActive = false
+        flashKeyPair(tokens: newTokens, in: rowToClear)
     }
 
     private func flashKeyPair(tokens: [Token], in row: Row, count: Int = 0) {
@@ -198,6 +185,7 @@ class GameViewModel: ObservableObject {
     }
 
     private func clear(_ row: Row) {
+        gameLogic.clearRow(tokens: row.tokens)
         levelProgress.updateValue()
         withAnimation {
             rows = rows.filter { $0 != row }
@@ -247,87 +235,6 @@ class GameViewModel: ObservableObject {
 
 extension GameViewModel {
 
-    private func isMatch(_ token1: Token, _ token2: Token) -> Bool {
-        token1.color == token2.color && token1.icon == token2.icon
-    }
-
-    private func isPartialMatch(_ token1: Token, _ token2: Token) -> Bool {
-        !isMatch(token1, token2) && (token1.color == token2.color || token1.icon == token2.icon)
-    }
-
-    private func getConvertedToken(_ token1: Token, _ token2: Token) -> Token? {
-        guard isPartialMatch(token1, token2) else { return nil }
-        let color: Token.Color?
-        let icon: Token.Icon?
-        if token1.color == token2.color {
-            color = token1.color
-            icon = Token.Icon.allCases.first { ![token1.icon, token2.icon].contains($0) }
-        } else {
-            icon = token1.icon
-            color = Token.Color.allCases.first { ![token1.color, token2.color].contains($0) }
-        }
-        guard let color = color, let icon = icon else { return nil }
-        return Token(color, icon)
-    }
-
-    private func getSelctionResult(_ token1: Token, _ token2: Token) -> SelectionResult {
-        switch getAdjacencyResult(token1, token2) {
-        case .notAdjacent:
-            return .none
-        case .adjacentVertical:
-            return isPartialMatch(token1, token2) ? .partialMatch : .none
-        case .adjacentHorizontal:
-            return isPartialMatch(token1, token2) ? getPartialMatchType(token1, token2) : .none
-        }
-    }
-
-    private func getPartialMatchType(_ token1: Token, _ token2: Token) -> SelectionResult {
-        guard let convertedToken = getConvertedToken(token1, token2),
-              let keyToken = keyToken
-        else {
-            return .none
-        }
-        return isMatch(convertedToken, keyToken) ? .partialMatchKey : .partialMatch
-    }
-
-    private func getAdjacencyResult(_ token1: Token, _ token2: Token) -> AdjacencyResult {
-        if let token1Coordinates = getCoordinates(for: token1),
-           let token2Coordinates = getCoordinates(for: token2) {
-            if valuesFitAdjacency(
-                matchingValues: (token1Coordinates.row, token2Coordinates.row),
-                adjacentValues: (token1Coordinates.column, token2Coordinates.column)
-            ) {
-                return .adjacentHorizontal
-            }
-            if valuesFitAdjacency(
-                matchingValues: (token1Coordinates.column, token2Coordinates.column),
-                adjacentValues: (token1Coordinates.row, token2Coordinates.row)
-            ) {
-                return .adjacentVertical
-            }
-        }
-        return .notAdjacent
-    }
-
-    private func valuesFitAdjacency(
-        matchingValues: (Int, Int),
-        adjacentValues: (Int, Int)
-    ) -> Bool {
-        matchingValues.0 == matchingValues.1 && abs(adjacentValues.0 - adjacentValues.1) == 1
-    }
-
-    private func getCoordinates(for token: Token) -> (column: Int, row: Int)? {
-        guard let rowIndex = rows.firstIndex(where: { $0.tokens.contains(token) }),
-              let tokenIndex = rows[rowIndex].tokens.firstIndex(of: token)
-        else {
-            return nil
-        }
-        return (tokenIndex, rowIndex)
-    }
-}
-
-extension GameViewModel {
-
     enum GameStatus {
         case active
         case inactive
@@ -351,33 +258,9 @@ extension GameViewModel {
 
         @Published var tokens: [Token]
 
-        init(keyToken: Token) {
-            tokens = Self.getTokens(keyToken: keyToken)
+        init(tokens: [Token]) {
+            self.tokens = tokens
         }
-
-        static func getTokens(keyToken: Token) -> [Token] {
-            (0..<GameViewModel.gridSize).map { index in
-                if index < 2 {
-                    return Token(Token.Color.allCases.filter({ $0 != keyToken.color })[index], keyToken.icon)
-                }
-                return Token(
-                    Token.Color.allCases.randomElement()!,
-                    Token.Icon.allCases.randomElement()!
-                )
-            }
-        }
-    }
-
-    enum AdjacencyResult {
-        case notAdjacent
-        case adjacentVertical
-        case adjacentHorizontal
-    }
-
-    enum SelectionResult {
-        case none
-        case partialMatch
-        case partialMatchKey
     }
 
     class Progress {

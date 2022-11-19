@@ -17,7 +17,7 @@ struct GameView: View {
     }
     static var gridWidth: CGFloat { GameView.boardWidth - (2 * tokenSpacing) }
     static var tokenSpacing: CGFloat { 1 }
-    static var tokenSize: CGFloat { (gridWidth / CGFloat(GameViewModel.gridSize)) - tokenSpacing }
+    static var tokenSize: CGFloat { (gridWidth / CGFloat(GameLogic.gridSize)) - tokenSpacing }
     private var topControlSize: CGFloat { 32 }
 
     var body: some View {
@@ -65,7 +65,7 @@ struct GameView: View {
     private var targetIndicator: some View {
         HStack {
             if let keyToken = viewModel.keyToken {
-                GameText("TARGET TOKEN  \u{25B6}", style: .detail)
+                GameText("TARGET  \u{25B6}", style: .detail)
                 TokenView(token: keyToken, size: topControlSize)
             }
         }
@@ -106,7 +106,7 @@ struct GameView: View {
 
     private var rows: some View {
         VStack(spacing: Self.tokenSpacing) {
-            if viewModel.rows.count < GameViewModel.gridSize {
+            if viewModel.rows.count < GameLogic.gridSize {
                 Spacer()
             }
             ForEach(viewModel.rows) { row in
