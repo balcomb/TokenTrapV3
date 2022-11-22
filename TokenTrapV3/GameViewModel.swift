@@ -14,7 +14,6 @@ class GameViewModel: ObservableObject {
     @Published var level = 1
     @Published var score = 0
     @Published var keyToken: Token?
-    @Published var levelCountdown = ""
     var settings: Settings?
     private(set) lazy var timeProgress = Progress(count: 4)
     private(set) lazy var levelProgress = Progress(count: 10)
@@ -41,6 +40,14 @@ class GameViewModel: ObservableObject {
         startLevel(level)
     }
 
+    func handleLevelCountdownComplete() {
+        withAnimation {
+            gameStatus = .active
+        }
+        addRow()
+        startTimer()
+    }
+
     private func resetGame() {
         gameLogic.reset()
         rows = []
@@ -53,9 +60,8 @@ class GameViewModel: ObservableObject {
         self.level = level ?? self.level + 1
         levelProgress.reset()
         showTarget()
-        showLevelStart { [weak self] in
-            self?.addRow()
-            self?.startTimer()
+        withAnimation {
+            gameStatus = .levelBegin
         }
     }
 
@@ -65,26 +71,6 @@ class GameViewModel: ObservableObject {
             keyToken.selectionStatus = .keyMatch
             self.keyToken = keyToken
         }
-    }
-
-    private func showLevelStart(completion: @escaping (() -> Void)) {
-        levelCountdown = " "
-        var sequence = [
-            SequencedAnimation(duration: 1) {
-                self.gameStatus = .levelBegin
-            },
-            SequencedAnimation(duration: 0.5) {
-                self.gameStatus = .active
-            }
-        ]
-        let messages = ["Ready", "Set", "GO!"]
-        let countdownSubsequence: [SequencedAnimation] = messages.map { message in
-            SequencedAnimation(duration: 0.5, delay: message == messages.last ? 0.75 : 0.5) {
-                self.levelCountdown = message
-            }
-        }
-        sequence.insert(contentsOf: countdownSubsequence, at: 1)
-        SequencedAnimation.start(sequence, completion: completion)
     }
 
     private func startTimer() {
@@ -216,7 +202,7 @@ class GameViewModel: ObservableObject {
     }
 
     private func showLevelComplete() {
-        SequencedAnimation.start([
+        [
             SequencedAnimation {
                 self.gameStatus = .levelComplete
             },
@@ -227,7 +213,7 @@ class GameViewModel: ObservableObject {
             SequencedAnimation {
                 self.gameStatus = .inactive
             }
-        ]) {
+        ].start {
             self.startLevel()
         }
     }

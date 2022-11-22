@@ -7,14 +7,6 @@
 
 import Foundation
 
-extension AsyncStream {
-    func forEach(_ body: (Element) -> Void) async {
-        for await element in self {
-            body(element)
-        }
-    }
-}
-
 class GameLogic {
 
     enum AdjacencyResult {

@@ -171,4 +171,67 @@ extension GameView {
             .padding(.horizontal)
         }
     }
+
+    struct LevelCountdownView: View {
+        @State private var scale = 1.0
+        @State private var message = " " // whitespace keeps layout consistent
+        @State private var needsCompletion = true
+        @State private var animationControl: SequencedAnimation.Control?
+        let level: Int
+        let completion: () -> Void
+
+        private var messages: [String] { ["Ready", "Set", "GO!"] }
+
+        private var animations: [SequencedAnimation] {
+            messages.map { currentMessage in
+                SequencedAnimation(
+                    duration: 0.4,
+                    delay: currentMessage == messages.last ? 0.8 : 0.6
+                ) {
+                    message = currentMessage
+                }
+            }
+        }
+
+        var body: some View {
+            VStack {
+                Spacer()
+                GameText("Begin Level \(level)")
+                GameText("\(message)", style: .primaryHot)
+                Spacer()
+                skipButton
+            }
+            .scaleEffect(scale)
+            .onAppear {
+                startAnimations()
+            }
+        }
+
+        private var skipButton: some View {
+            Button {
+                callCompletion(animationControl)
+            } label: {
+                GameText("SKIP", style: .detail)
+                    .padding()
+            }
+            .padding(.bottom)
+        }
+
+        private func startAnimations() {
+            animationControl = animations.start(delay: 1) {
+                callCompletion()
+            }
+        }
+
+        private func callCompletion(_ animationControl: SequencedAnimation.Control? = nil) {
+            guard needsCompletion else {
+                return
+            }
+            needsCompletion = false
+            animationControl?.cancel()
+            [SequencedAnimation { scale = 0 }].start {
+                completion()
+            }
+        }
+    }
 }

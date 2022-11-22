@@ -16,6 +16,17 @@ struct MenuView: View {
     private static var logoName: String { "Logo" }
     private static var logoWidth: CGFloat { UIImage(named: logoName)?.size.width ?? 0 }
 
+    private var openingAnimations: [SequencedAnimation] {
+        [
+            SequencedAnimation(duration: 0.5) {
+                didAppear = true
+            },
+            SequencedAnimation {
+                controlOpacity = 1
+            }
+        ]
+    }
+
     var body: some View {
         VStack {
             logo
@@ -27,7 +38,7 @@ struct MenuView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
         .onAppear {
-            handleOnAppear()
+            openingAnimations.start(delay: 1.5)
         }
     }
 
@@ -81,17 +92,6 @@ struct MenuView: View {
         makeSmallButton("Play in Training Mode") {
             action(.game(settings: .init(skillLevel: skillLevel, isTrainingMode: true)))
         }
-    }
-
-    private func handleOnAppear() {
-        SequencedAnimation.start([
-            SequencedAnimation(duration: 0.5) {
-                didAppear = true
-            },
-            SequencedAnimation {
-                controlOpacity = 1
-            }
-        ])
     }
 
     private func makeButton(_ text: String, action: @escaping () -> Void) -> some View {

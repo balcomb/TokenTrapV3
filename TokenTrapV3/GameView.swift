@@ -95,7 +95,7 @@ struct GameView: View {
             GridView().opacity(gridOpacity)
             switch viewModel.gameStatus {
             case .gameOver: gameOverView
-            case .levelBegin: levelBeginView
+            case .levelBegin: levelCountdownView
             case .levelComplete: levelCompleteView
             default: rows.opacity(rowOpacity)
             }
@@ -118,10 +118,9 @@ struct GameView: View {
         .frame(width: Self.gridWidth, height: Self.gridWidth)
     }
 
-    private var levelBeginView: some View {
-        VStack {
-            GameText("Begin Level \(viewModel.level)")
-            GameText("\(viewModel.levelCountdown)", style: .primaryHot)
+    private var levelCountdownView: some View {
+        LevelCountdownView(level: viewModel.level) {
+            viewModel.handleLevelCountdownComplete()
         }
     }
 
