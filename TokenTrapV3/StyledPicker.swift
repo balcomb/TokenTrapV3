@@ -16,16 +16,21 @@ struct StyledPicker: ViewModifier {
 extension Picker {
     func styled(
         backgroundColor: Color = .logoBlue,
-        selectedColor: Color = .buttonBlue,
+        selectedColor: Color = .black.opacity(0.4),
         titleColor: Color = .white
     ) -> some View {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor(titleColor),
+            .font: UIFontMetrics(
+                forTextStyle: .callout
+            ).scaledFont(
+                for: UIFont.systemFont(ofSize: 15, weight: .heavy)
+            )
+        ]
         let controlAppearance = UISegmentedControl.appearance()
         controlAppearance.backgroundColor = UIColor(backgroundColor)
         controlAppearance.selectedSegmentTintColor = UIColor(selectedColor)
-        controlAppearance.setTitleTextAttributes(
-            [.foregroundColor: UIColor(titleColor)],
-            for: .normal
-        )
+        controlAppearance.setTitleTextAttributes(attributes, for: .normal)
         return modifier(StyledPicker())
     }
 }

@@ -40,8 +40,7 @@ extension LearnHowView {
         Text(
             Strings.navTitle
         )
-        .font(.subheadline)
-        .bold()
+        .font(.subheadline.weight(.heavy))
         .padding(.leading)
         .foregroundColor(.white)
     }
@@ -71,7 +70,7 @@ extension LearnHowView {
         Text(
             Strings.headline
         )
-        .font(.title2.weight(.bold))
+        .font(.title2.weight(.heavy))
         .foregroundColor(.tokenBackgroundGold)
     }
 
@@ -130,13 +129,14 @@ extension LearnHowView {
 
     private struct SectionText: View {
         let text: String
-        var opacity: CGFloat = 0.7
+        var opacity: CGFloat = 0.85
+        var font = Font.body
 
         var body: some View {
             Text(
                 text
             )
-            .font(.body.weight(.bold))
+            .font(font)
             .foregroundColor(.white)
             .opacity(opacity)
         }
@@ -148,7 +148,8 @@ extension LearnHowView {
         var body: some View {
             SectionText(
                 text: text,
-                opacity: 1
+                opacity: 1,
+                font: .body.weight(.heavy)
             )
             .padding(.top, margin)
             .padding(.bottom, 6)

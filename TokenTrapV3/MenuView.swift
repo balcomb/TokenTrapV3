@@ -70,8 +70,7 @@ struct MenuView: View {
         Text(
             "skill level".uppercased()
         )
-        .font(.caption)
-        .fontWeight(.bold)
+        .font(.caption.weight(.heavy))
         .foregroundColor(.white)
     }
 
@@ -99,7 +98,7 @@ struct MenuView: View {
             action: { action() },
             label: {
                 Spacer()
-                Text(text).bold()
+                Text(text).fontWeight(.heavy)
                 Spacer()
             }
         )
