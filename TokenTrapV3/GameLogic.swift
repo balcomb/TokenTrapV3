@@ -23,6 +23,7 @@ class GameLogic {
     }
 
     private(set) lazy var rows: [[Token]] = []
+    private var rowsCleared = 0
     private var keyToken: Token?
     private var selectedToken: Token?
     private var score = 0
@@ -32,9 +33,20 @@ class GameLogic {
     }
 
     static var gridSize: Int { 8 }
+    static var requiredRowsCleared: Int { 10 }
 
     var canAddRows: Bool {
         rows.count < Self.gridSize
+    }
+
+    var levelIsComplete: Bool {
+        rowsCleared == Self.requiredRowsCleared
+    }
+
+    var rowsClearedStream: AsyncStream<Int> {
+        AsyncStream {
+            self.rowsCleared
+        }
     }
 
     var scoreStream: AsyncStream<Int> {
@@ -43,8 +55,13 @@ class GameLogic {
         }
     }
 
+    func incrementLevel() {
+        rowsCleared = 0
+    }
+
     func reset() {
         rows = []
+        rowsCleared = 0
         score = 0
         selectedToken = nil
     }
@@ -107,6 +124,7 @@ class GameLogic {
         rows.removeAll {
             $0 == tokens
         }
+        rowsCleared += 1
     }
 
     func getRowTokens() -> [Token] {

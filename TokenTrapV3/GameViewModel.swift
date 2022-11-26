@@ -16,12 +16,13 @@ class GameViewModel: ObservableObject {
     @Published var keyToken: Token?
     var settings: Settings?
     private(set) lazy var timeProgress = Progress(count: 4)
-    private(set) lazy var levelProgress = Progress(count: 10)
+    private(set) lazy var levelProgress = Progress(count: GameLogic.requiredRowsCleared)
     private var timer: Timer?
     private var timeInterval: TimeInterval = 1
     private lazy var gameLogic = GameLogic()
 
     init() {
+        monitorRowsCleared()
         monitorScore()
     }
 
@@ -29,6 +30,14 @@ class GameViewModel: ObservableObject {
         Task {
             for await value in gameLogic.scoreStream {
                 score = value
+            }
+        }
+    }
+
+    private func monitorRowsCleared() {
+        Task {
+            for await rowsCleared in gameLogic.rowsClearedStream {
+                levelProgress.status = .active(value: rowsCleared)
             }
         }
     }
@@ -58,7 +67,7 @@ class GameViewModel: ObservableObject {
 
     private func startLevel(_ level: Int? = nil) {
         self.level = level ?? self.level + 1
-        levelProgress.reset()
+        gameLogic.incrementLevel()
         showTarget()
         withAnimation {
             gameStatus = .levelBegin
@@ -86,7 +95,7 @@ class GameViewModel: ObservableObject {
     }
 
     private func handleTimer() {
-        timeProgress.updateValue()
+        timeProgress.updateProgress()
         guard timeProgress.isComplete else {
             return
         }
@@ -106,7 +115,7 @@ class GameViewModel: ObservableObject {
     private func handleGameOver() {
         timer?.invalidate()
         gameStatus = .inactive
-        timeProgress.activateWarning()
+        timeProgress.status = .warning
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
             withAnimation {
                 self.gameStatus = .gameOver
@@ -172,14 +181,11 @@ class GameViewModel: ObservableObject {
 
     private func clear(_ row: Row) {
         gameLogic.clearRow(tokens: row.tokens)
-        levelProgress.updateValue()
         withAnimation {
             rows = rows.filter { $0 != row }
         }
-        if levelProgress.isComplete {
-            gameStatus = .inactive
-            timeProgress.reset()
-            flashLevelProgress()
+        if gameLogic.levelIsComplete {
+            handleLevelComplete()
             return
         }
         if rows.isEmpty {
@@ -189,20 +195,10 @@ class GameViewModel: ObservableObject {
         startTimer()
     }
 
-    private func flashLevelProgress(count: Int = 0) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
-            let levelProgress = self.levelProgress
-            levelProgress.isComplete ? levelProgress.reset() : levelProgress.setComplete()
-            guard count < 5 else {
-                self.showLevelComplete()
-                return
-            }
-            self.flashLevelProgress(count: count + 1)
-        }
-    }
-
-    private func showLevelComplete() {
-        [
+    private func handleLevelComplete() {
+        gameStatus = .inactive
+        timeProgress.reset()
+        let animationSequence = [
             SequencedAnimation {
                 self.gameStatus = .levelComplete
             },
@@ -213,8 +209,12 @@ class GameViewModel: ObservableObject {
             SequencedAnimation {
                 self.gameStatus = .inactive
             }
-        ].start {
-            self.startLevel()
+        ]
+        levelProgress.status = .flash {
+            self.levelProgress.updateProgress(complete: true)
+            animationSequence.start {
+                self.startLevel()
+            }
         }
     }
 }
@@ -249,49 +249,41 @@ extension GameViewModel {
         }
     }
 
-    class Progress {
-        let indicators: [Indicator]
-        fileprivate var currentValue = 0
+    class Progress: GameViewModelObject {
+        @Published var status: Status = .active(value: 0)
+        let count: Int
 
         var isComplete: Bool {
-            currentValue == indicators.count
+            guard case .active(let value) = status else {
+                return false
+            }
+            return value == count
         }
 
         init(count: Int) {
-            indicators = (0..<count).map { _ in Indicator() }
+            self.count = count
         }
 
-        func updateValue() {
-            currentValue = currentValue < indicators.count ? currentValue + 1 : 0
-            for (index, indicator) in indicators.enumerated() {
-                indicator.isOn = index < currentValue
+        func updateProgress(complete: Bool = false) {
+            if complete {
+                status = .active(value: count)
+                return
             }
+            var newValue = 0
+            if case .active(let value) = status {
+                newValue = isComplete ? 0 : value + 1
+            }
+            status = .active(value: newValue)
         }
 
         func reset() {
-            currentValue = 0
-            indicators.forEach {
-                $0.isOn = false
-                $0.isWarningOn = false
-            }
+            status = .active(value: 0)
         }
 
-        func activateWarning() {
-            indicators.forEach {
-                $0.isWarningOn = true
-            }
-        }
-
-        func setComplete() {
-            currentValue = indicators.count
-            indicators.forEach {
-                $0.isOn = true
-            }
-        }
-
-        class Indicator: GameViewModelObject {
-            @Published var isOn = false
-            @Published var isWarningOn = false
+        enum Status {
+            case active(value: Int)
+            case warning
+            case flash(completion: () -> Void)
         }
     }
 }

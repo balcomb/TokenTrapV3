@@ -103,56 +103,75 @@ extension GameView {
     }
 
     struct ProgressView: View {
-        private let viewModel: GameViewModel.Progress
+        @ObservedObject private var viewModel: GameViewModel.Progress
+        @State private var flashColor: Color?
+        private let style: Style
         private let indicatorWidth: CGFloat
-        private let colors: (on: Color, off: Color)
+        private let weight: CGFloat
+
+        private var colors: (on: Color, off: Color) {
+            switch style {
+            case .time:
+                return (.green, .darkGreen)
+            case .level:
+                return (.tokenBackgroundGold, .progressOff)
+            }
+        }
 
         init(viewModel: GameViewModel.Progress, width: CGFloat, style: Style) {
             self.viewModel = viewModel
-            let indicatorCount = CGFloat(viewModel.indicators.count)
-            indicatorWidth = (width - (IndicatorView.weight * (indicatorCount + 1))) / indicatorCount
-
-            switch style {
-            case .time:
-                colors = (.green, .darkGreen)
-            case .level:
-                colors = (.tokenBackgroundGold, .progressOff)
-            }
+            self.style = style
+            weight = 4
+            let indicatorCount = CGFloat(viewModel.count)
+            indicatorWidth = (width - (weight * (indicatorCount + 1))) / indicatorCount
         }
 
         var body: some View {
-            HStack(spacing: IndicatorView.weight) {
+            HStack(spacing: weight) {
                 indicators
             }
-            .padding(.vertical, IndicatorView.weight)
+            .padding(.vertical, weight)
         }
 
         private var indicators: some View {
-            ForEach(viewModel.indicators) {
-                IndicatorView(viewModel: $0, width: indicatorWidth, colors: colors)
+            ForEach(0 ..< viewModel.count, id: \.self) { index in
+                Rectangle()
+                    .cornerRadius(weight / 2)
+                    .foregroundColor(getColor(at: index))
+                    .frame(width: indicatorWidth, height: weight)
+            }
+        }
+
+        private func getColor(at index: Int) -> Color {
+            if let flashColor = flashColor {
+                return flashColor
+            }
+            var color = colors.on
+            switch viewModel.status {
+            case .active(let value):
+                if index >= value { color = colors.off }
+            case .warning:
+                color = .red
+            case .flash(let completion):
+                if index == 0 { flash(color: color, with: completion) }
+            }
+            return color
+        }
+
+        private func flash(color: Color?, count: Int = 0, with completion: @escaping () -> Void) {
+            guard count < 11 else {
+                completion()
+                flashColor = nil
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
+                flashColor = [colors.on, colors.off].first { $0 != color }
+                flash(color: flashColor, count: count + 1, with: completion)
             }
         }
 
         enum Style {
             case time, level
-        }
-    }
-
-    struct IndicatorView: View {
-        @ObservedObject var viewModel: GameViewModel.Progress.Indicator
-        let width: CGFloat
-        let colors: (on: Color, off: Color)
-        static var weight: CGFloat { 4 }
-
-        private var color: Color {
-            viewModel.isWarningOn ? .red : viewModel.isOn ? colors.on : colors.off
-        }
-
-        var body: some View {
-            Rectangle()
-                .cornerRadius(Self.weight / 2)
-                .foregroundColor(color)
-                .frame(width: width, height: Self.weight)
         }
     }
 
