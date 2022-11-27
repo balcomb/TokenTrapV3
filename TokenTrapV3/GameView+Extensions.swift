@@ -191,17 +191,52 @@ extension GameView {
         }
     }
 
-    struct LevelCountdownView: View {
-        @State private var scale = 1.0
+    struct LevelTransitionView: View {
+        @State private var mainScale = 0.0
+        @State private var textScale = 1.0
         @State private var message = " " // whitespace keeps layout consistent
+        @State private var isShowingLevelComplete = true
         @State private var needsCompletion = true
         @State private var animationControl: SequencedAnimation.Control?
-        let level: Int
-        let completion: () -> Void
+        let levelInfo: GameViewModel.LevelTransitionInfo
+        let callback: (Event) -> Void
 
+        private var mainText: String {
+            isShowingLevelComplete
+            ? "Level \(levelInfo.completed ?? 0)\nComplete"
+            : "Begin Level \(levelInfo.next)"
+        }
         private var messages: [String] { ["Ready", "Set", "GO!"] }
 
         private var animations: [SequencedAnimation] {
+            let delay: TimeInterval = isShowingLevelComplete ? 2 : 1
+            var animations = [
+                SequencedAnimation(delay: delay) {
+                    mainScale = 1
+                }
+            ]
+            if isShowingLevelComplete {
+                animations.append(contentsOf: levelCompleteAnimations)
+            }
+            return animations + countdownAnimations
+        }
+
+        private var levelCompleteAnimations: [SequencedAnimation] {
+            [
+                SequencedAnimation {
+                    textScale = 0
+                },
+                SequencedAnimation(duration: 0) {
+                    isShowingLevelComplete = false
+                    callback(.countdownStart)
+                },
+                SequencedAnimation(delay: 1) {
+                    textScale = 1
+                }
+            ]
+        }
+
+        private var countdownAnimations: [SequencedAnimation] {
             messages.map { currentMessage in
                 SequencedAnimation(
                     duration: 0.4,
@@ -215,15 +250,27 @@ extension GameView {
         var body: some View {
             VStack {
                 Spacer()
-                GameText("Begin Level \(level)")
-                GameText("\(message)", style: .primaryHot)
+                textView
                 Spacer()
                 skipButton
             }
-            .scaleEffect(scale)
+            .scaleEffect(mainScale)
             .onAppear {
+                if levelInfo.completed == nil {
+                    isShowingLevelComplete = false
+                    callback(.countdownStart)
+                }
                 startAnimations()
             }
+        }
+
+        private var textView: some View {
+            VStack {
+                GameText(mainText)
+                    .multilineTextAlignment(.center)
+                GameText("\(message)", style: .primaryHot)
+            }
+            .scaleEffect(textScale)
         }
 
         private var skipButton: some View {
@@ -237,7 +284,7 @@ extension GameView {
         }
 
         private func startAnimations() {
-            animationControl = animations.start(delay: 1) {
+            animationControl = animations.start() {
                 callCompletion()
             }
         }
@@ -248,9 +295,14 @@ extension GameView {
             }
             needsCompletion = false
             animationControl?.cancel()
-            [SequencedAnimation { scale = 0 }].start {
-                completion()
+            [SequencedAnimation { mainScale = 0 }].start {
+                callback(.countdownComplete)
             }
+        }
+
+        enum Event {
+            case countdownStart
+            case countdownComplete
         }
     }
 }

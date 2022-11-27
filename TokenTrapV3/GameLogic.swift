@@ -26,6 +26,7 @@ class GameLogic {
     private var rowsCleared = 0
     private var keyToken: Token?
     private var selectedToken: Token?
+    private var level = 1
     private var score = 0
 
     private var randomToken: Token {
@@ -49,6 +50,12 @@ class GameLogic {
         }
     }
 
+    var levelStream: AsyncStream<Int> {
+        AsyncStream {
+            self.level
+        }
+    }
+
     var scoreStream: AsyncStream<Int> {
         AsyncStream {
             self.score
@@ -56,12 +63,16 @@ class GameLogic {
     }
 
     func incrementLevel() {
+        level += 1
+        rows = []
         rowsCleared = 0
+        selectedToken = nil
     }
 
     func reset() {
         rows = []
         rowsCleared = 0
+        level = 1
         score = 0
         selectedToken = nil
     }

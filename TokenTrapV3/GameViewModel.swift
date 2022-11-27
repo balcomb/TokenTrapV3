@@ -22,8 +22,17 @@ class GameViewModel: ObservableObject {
     private lazy var gameLogic = GameLogic()
 
     init() {
-        monitorRowsCleared()
+        monitorLevel()
         monitorScore()
+        monitorRowsCleared()
+    }
+
+    private func monitorLevel() {
+        Task {
+            for await value in gameLogic.levelStream {
+                level = value
+            }
+        }
     }
 
     private func monitorScore() {
@@ -43,13 +52,25 @@ class GameViewModel: ObservableObject {
     }
 
     func startNewGame() {
-        if gameStatus != .active {
+        if case .gameOver = gameStatus {
             resetGame()
         }
-        startLevel(level)
+        gameStatus = .newGame
     }
 
-    func handleLevelCountdownComplete() {
+    func handleLevelTransition(event: GameView.LevelTransitionView.Event) {
+        switch event {
+        case .countdownStart:
+            startLevel()
+        case .countdownComplete:
+            handleLevelCountdownComplete()
+        }
+    }
+
+    private func handleLevelCountdownComplete() {
+        if keyToken == nil {
+            startLevel()
+        }
         withAnimation {
             gameStatus = .active
         }
@@ -60,18 +81,15 @@ class GameViewModel: ObservableObject {
     private func resetGame() {
         gameLogic.reset()
         rows = []
-        level = 1
         gameStatus = .active
         timeProgress.reset()
     }
 
-    private func startLevel(_ level: Int? = nil) {
-        self.level = level ?? self.level + 1
-        gameLogic.incrementLevel()
-        showTarget()
-        withAnimation {
-            gameStatus = .levelBegin
+    private func startLevel() {
+        if !gameStatus.isNewGame {
+            gameLogic.incrementLevel()
         }
+        showTarget()
     }
 
     private func showTarget() {
@@ -124,7 +142,7 @@ class GameViewModel: ObservableObject {
     }
 
     func handleTap(token: Token, in row: Row) {
-        guard gameStatus == .active, row.isActive else {
+        guard case .active = gameStatus, row.isActive else {
             return
         }
         let selectionResult = gameLogic.getSelectionResult(token: token)
@@ -198,23 +216,21 @@ class GameViewModel: ObservableObject {
     private func handleLevelComplete() {
         gameStatus = .inactive
         timeProgress.reset()
-        let animationSequence = [
-            SequencedAnimation {
-                self.gameStatus = .levelComplete
-            },
-            SequencedAnimation(duration: 0.5, delay: 1) {
-                self.keyToken = nil
-                self.rows = []
-            },
-            SequencedAnimation {
-                self.gameStatus = .inactive
-            }
-        ]
-        levelProgress.status = .flash {
-            self.levelProgress.updateProgress(complete: true)
-            animationSequence.start {
-                self.startLevel()
-            }
+        levelProgress.status = .flash { [weak self] in
+            self?.handleLevelProgressFlashComplete()
+        }
+    }
+
+    private func handleLevelProgressFlashComplete() {
+        hideCompletedLevel()
+        levelProgress.updateProgress(complete: true)
+        gameStatus = .levelTransition(LevelTransitionInfo(completed: level, next: level + 1))
+    }
+
+    private func hideCompletedLevel() {
+        withAnimation {
+            keyToken = nil
+            rows = []
         }
     }
 }
@@ -224,9 +240,26 @@ extension GameViewModel {
     enum GameStatus {
         case active
         case inactive
-        case levelBegin
-        case levelComplete
+        case levelTransition(_ info: LevelTransitionInfo)
         case gameOver
+
+        fileprivate var isNewGame: Bool {
+            switch self {
+            case .levelTransition(let levelInfo):
+                return levelInfo.next == 1
+            default:
+                return false
+            }
+        }
+
+        fileprivate static var newGame: Self {
+            .levelTransition(LevelTransitionInfo(completed: nil, next: 1))
+        }
+    }
+
+    struct LevelTransitionInfo {
+        let completed: Int?
+        let next: Int
     }
 
     struct Settings: Equatable {

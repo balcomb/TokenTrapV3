@@ -20,6 +20,21 @@ struct GameView: View {
     static var tokenSize: CGFloat { (gridWidth / CGFloat(GameLogic.gridSize)) - tokenSpacing }
     private var topControlSize: CGFloat { 32 }
 
+    private var gridOpacity: CGFloat {
+        switch viewModel.gameStatus {
+        case .gameOver: return 0.3
+        default: return 1
+        }
+    }
+
+    private var rowOpacity: CGFloat {
+        switch viewModel.gameStatus {
+        case .active: return 1
+        case .inactive: return 0.7
+        default: return 0
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             topControls
@@ -89,16 +104,10 @@ struct GameView: View {
     }
 
     private var boardContainer: some View {
-        let gridOpacity = viewModel.gameStatus == .gameOver ? 0.3 : 1
-        let rowOpacity = viewModel.gameStatus == .active ? 1 : 0.7
-        return ZStack {
+        ZStack {
             GridView().opacity(gridOpacity)
-            switch viewModel.gameStatus {
-            case .gameOver: gameOverView
-            case .levelBegin: levelCountdownView
-            case .levelComplete: levelCompleteView
-            default: rows.opacity(rowOpacity)
-            }
+            rows.opacity(rowOpacity)
+            auxiliaryView
         }
         .frame(width: Self.boardWidth, height: Self.boardWidth)
         .background(Color.boardBackground)
@@ -118,16 +127,6 @@ struct GameView: View {
         .frame(width: Self.gridWidth, height: Self.gridWidth)
     }
 
-    private var levelCountdownView: some View {
-        LevelCountdownView(level: viewModel.level) {
-            viewModel.handleLevelCountdownComplete()
-        }
-    }
-
-    private var levelCompleteView: some View {
-        GameText("Level Complete")
-    }
-
     private var gameOverView: some View {
         VStack {
             GameText("Game Over", style: .primaryHot)
@@ -143,5 +142,20 @@ struct GameView: View {
         }
         .frame(width: Self.boardWidth)
         .padding(.top, 8)
+    }
+
+    private var auxiliaryView: some View {
+        Group {
+            switch viewModel.gameStatus {
+            case .gameOver:
+                gameOverView
+            case .levelTransition(let info):
+                LevelTransitionView(levelInfo: info) {
+                    viewModel.handleLevelTransition(event: $0)
+                }
+            default:
+                EmptyView()
+            }
+        }
     }
 }
