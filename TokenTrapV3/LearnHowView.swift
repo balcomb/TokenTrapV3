@@ -161,7 +161,7 @@ extension LearnHowView {
 
         var body: some View {
             TokenRow(
-                tokens: Token.Color.allCases.map { Token($0, icon) }
+                tokens: Token.Color.allCases.map { color in Token(color, icon) }
             )
         }
     }
@@ -171,8 +171,8 @@ extension LearnHowView {
 
         var body: some View {
             HStack(spacing: tokenSpacing) {
-                ForEach(tokens) {
-                    TokenView(token: $0, size: LearnHowView.tokenSize, scale: 1)
+                ForEach(tokens.map { TokenViewModel(token: $0) }) {
+                    TokenView(viewModel: $0, size: LearnHowView.tokenSize, scale: 1)
                 }
             }
         }

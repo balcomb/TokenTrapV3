@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TokenView: View {
-    @ObservedObject var token: Token
+    @ObservedObject var viewModel: TokenViewModel
     let size: CGFloat
     private var iconSize: CGFloat { size * 0.6 }
     @State var scale = 0.1
@@ -19,6 +19,7 @@ struct TokenView: View {
             icon
         }
         .frame(width: size, height: size)
+        .opacity(viewModel.isDimmed ? 0.7 : 1)
     }
 
     private var background: some View {
@@ -27,12 +28,12 @@ struct TokenView: View {
 
     private var icon: some View {
         Image(
-            token.icon.rawValue
+            viewModel.token.attributes.icon.rawValue
         )
         .renderingMode(.template)
         .resizable()
         .scaledToFit()
-        .foregroundColor(Color(token.color.rawValue))
+        .foregroundColor(Color(viewModel.token.attributes.color.rawValue))
         .frame(width: iconSize, height: iconSize)
         .scaleEffect(scale)
         .onAppear {
@@ -43,11 +44,11 @@ struct TokenView: View {
     }
 
     private var circleColor: Color {
-        switch token.selectionStatus {
-        case .none: return .white
-        case .selected: return .tokenBackgroundGreen
-        case .rejected: return .tokenBackgroundRed
-        case .keyMatch: return .tokenBackgroundGold
+        switch viewModel.style {
+        case .green: return .tokenBackgroundGreen
+        case .red: return .tokenBackgroundRed
+        case .gold: return .tokenBackgroundGold
+        default: return .white
         }
     }
 }

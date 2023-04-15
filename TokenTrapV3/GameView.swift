@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GameView: View {
-    @StateObject var viewModel = GameViewModel()
+    @StateObject private var viewModel = GameViewModel()
     let settings: GameViewModel.Settings
     let completion: () -> Void
 
@@ -19,21 +19,6 @@ struct GameView: View {
     static var tokenSpacing: CGFloat { 1 }
     static var tokenSize: CGFloat { (gridWidth / CGFloat(GameLogic.gridSize)) - tokenSpacing }
     private var topControlSize: CGFloat { 32 }
-
-    private var gridOpacity: CGFloat {
-        switch viewModel.gameStatus {
-        case .gameOver: return 0.3
-        default: return 1
-        }
-    }
-
-    private var rowOpacity: CGFloat {
-        switch viewModel.gameStatus {
-        case .active: return 1
-        case .inactive: return 0.7
-        default: return 0
-        }
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -46,10 +31,7 @@ struct GameView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
         .onAppear {
-            viewModel.settings = settings
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(750)) {
-                viewModel.startNewGame()
-            }
+            viewModel.handle(.onAppear(settings))
         }
     }
 
@@ -79,9 +61,9 @@ struct GameView: View {
 
     private var targetIndicator: some View {
         HStack {
-            if let keyToken = viewModel.keyToken {
+            if let targetToken = viewModel.targetToken {
                 GameText("TARGET  \u{25B6}", style: .detail)
-                TokenView(token: keyToken, size: topControlSize)
+                TokenView(viewModel: targetToken, size: topControlSize)
             }
         }
         .padding(.horizontal)
@@ -105,8 +87,8 @@ struct GameView: View {
 
     private var boardContainer: some View {
         ZStack {
-            GridView().opacity(gridOpacity)
-            rows.opacity(rowOpacity)
+            GridView()
+            rows.opacity(viewModel.rowOpacity)
             auxiliaryView
         }
         .frame(width: Self.boardWidth, height: Self.boardWidth)
@@ -120,7 +102,7 @@ struct GameView: View {
             }
             ForEach(viewModel.rows) { row in
                 RowView(row: row) {
-                    viewModel.handleTap(token: $0, in: row)
+                    viewModel.handle(.selected(token: $0))
                 }
             }
         }
@@ -130,7 +112,10 @@ struct GameView: View {
     private var gameOverView: some View {
         VStack {
             GameText("Game Over", style: .primaryHot)
-            Button("new game") { viewModel.startNewGame() }.foregroundColor(.tokenBackgroundGold)
+            Button("new game") {
+                viewModel.handle(.newGame)
+            }
+            .foregroundColor(.tokenBackgroundGold)
         }
     }
 
@@ -146,16 +131,22 @@ struct GameView: View {
 
     private var auxiliaryView: some View {
         Group {
-            switch viewModel.gameStatus {
+            switch viewModel.auxiliaryView {
             case .gameOver:
                 gameOverView
-            case .levelTransition(let info):
-                LevelTransitionView(levelInfo: info) {
-                    viewModel.handleLevelTransition(event: $0)
-                }
+            case .levelComplete:
+                levelTransitionView
+            case .levelIntro:
+                levelTransitionView
             default:
                 EmptyView()
             }
+        }
+    }
+
+    private var levelTransitionView: some View {
+        LevelTransitionView(level: viewModel.level, type: viewModel.auxiliaryView) {
+            viewModel.handle(.levelTransition)
         }
     }
 }

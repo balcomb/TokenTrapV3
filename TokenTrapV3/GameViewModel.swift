@@ -10,256 +10,160 @@ import SwiftUI
 @MainActor
 class GameViewModel: ObservableObject {
     @Published var rows: [Row] = []
-    @Published var gameStatus = GameStatus.active
     @Published var level = 1
     @Published var score = 0
-    @Published var keyToken: Token?
-    var settings: Settings?
-    private(set) lazy var timeProgress = Progress(count: 4)
+    @Published var targetToken: TokenViewModel?
+    @Published var auxiliaryView: AuxiliaryView?
+    @Published var rowOpacity: CGFloat = 1
+    private var settings: Settings?
+    private(set) lazy var timeProgress = Progress(count: GameLogic.RowTimer.indicatorCount)
     private(set) lazy var levelProgress = Progress(count: GameLogic.requiredRowsCleared)
-    private var timer: Timer?
-    private var timeInterval: TimeInterval = 1
     private lazy var gameLogic = GameLogic()
 
     init() {
-        monitorLevel()
-        monitorScore()
-        monitorRowsCleared()
+        monitorState()
     }
+}
 
-    private func monitorLevel() {
-        Task {
-            for await value in gameLogic.levelStream {
-                level = value
+// MARK: State Handling
+
+extension GameViewModel {
+
+    private func monitorState() {
+        Task { [weak self] in
+            for await state in gameLogic.stateSequence {
+                self?.handle(state)
             }
         }
     }
 
-    private func monitorScore() {
-        Task {
-            for await value in gameLogic.scoreStream {
-                score = value
-            }
-        }
-    }
+    private func handle(_ state: GameLogic.State) {
+        updateRows(with: state)
+        updateTarget(token: state.target)
+        level = state.level
+        score = state.score
+        timeProgress.status = .active(value: state.timerValue)
+        levelProgress.status = .active(value: state.rowsCleared)
 
-    private func monitorRowsCleared() {
-        Task {
-            for await rowsCleared in gameLogic.rowsClearedStream {
-                levelProgress.status = .active(value: rowsCleared)
-            }
-        }
-    }
-
-    func startNewGame() {
-        if case .gameOver = gameStatus {
-            resetGame()
-        }
-        gameStatus = .newGame
-    }
-
-    func handleLevelTransition(event: GameView.LevelTransitionView.Event) {
-        switch event {
-        case .countdownStart:
-            startLevel()
-        case .countdownComplete:
-            handleLevelCountdownComplete()
-        }
-    }
-
-    private func handleLevelCountdownComplete() {
-        if keyToken == nil {
-            startLevel()
-        }
-        withAnimation {
-            gameStatus = .active
-        }
-        addRow()
-        startTimer()
-    }
-
-    private func resetGame() {
-        gameLogic.reset()
-        rows = []
-        gameStatus = .active
-        timeProgress.reset()
-    }
-
-    private func startLevel() {
-        if !gameStatus.isNewGame {
-            gameLogic.incrementLevel()
-        }
-        showTarget()
-    }
-
-    private func showTarget() {
-        withAnimation {
-            let keyToken = gameLogic.getKeyToken()
-            keyToken.selectionStatus = .keyMatch
-            self.keyToken = keyToken
-        }
-    }
-
-    private func startTimer() {
-        timer?.invalidate()
-        timer = .scheduledTimer(withTimeInterval: timeInterval, repeats: true) { [weak self] _ in
-            guard let self = self else {
-                return
-            }
-            DispatchQueue.main.async {
-                self.handleTimer()
-            }
-        }
-    }
-
-    private func handleTimer() {
-        timeProgress.updateProgress()
-        guard timeProgress.isComplete else {
-            return
-        }
-        guard gameLogic.canAddRows else {
+        switch state.gamePhase {
+        case .levelComplete:
+            handleLevelComplete()
+        case .levelIntro:
+            auxiliaryView = .levelIntro
+        case .gameOver:
             handleGameOver()
-            return
+        case .gameActive, .none:
+            rowOpacity = 1
+            auxiliaryView = nil
         }
-        addRow()
     }
 
-    private func addRow() {
-        withAnimation {
-            rows.insert(Row(tokens: gameLogic.getRowTokens()), at: 0)
+    private func handleLevelComplete() {
+        levelProgress.flash {
+            self.rows = []
+            self.auxiliaryView = .levelComplete
         }
     }
 
     private func handleGameOver() {
-        timer?.invalidate()
-        gameStatus = .inactive
+        rowOpacity = 0.7
         timeProgress.status = .warning
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-            withAnimation {
-                self.gameStatus = .gameOver
+            self.clearBoard {
+                self.showGameOver()
             }
         }
     }
 
-    func handleTap(token: Token, in row: Row) {
-        guard case .active = gameStatus, row.isActive else {
+    private func clearBoard(_ completion: @escaping () -> Void) {
+        guard !rows.isEmpty else {
+            completion()
             return
         }
-        let selectionResult = gameLogic.getSelectionResult(token: token)
-        switch selectionResult {
-        case .firstSelection:
-            token.selectionStatus = .selected
-        case .none(let tokens):
-            updateSelectionStatus(tokens: tokens, status: .rejected)
-        case .partialMatch(let tokens):
-            handlePartialMatch(tokens: tokens)
-        case .partialMatchKey(let tokens):
-            handlePartialMatch(tokens: tokens, rowToClear: row)
+        rows = rows.compactMap { $0 != rows.first ? $0 : nil }
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(20)) {
+            self.clearBoard(completion)
         }
     }
 
-    private func updateSelectionStatus(tokens: [Token], status: Token.SelectionStatus) {
-        tokens.forEach { $0.selectionStatus = status }
-        guard status != .keyMatch else {
-            return
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
-            tokens.forEach { $0.selectionStatus = .none }
-        }
-    }
-
-    private func handlePartialMatch(tokens: [Token], rowToClear: Row? = nil) {
-        guard let newTokens = gameLogic.getConvertedTokens(keyMatchTokens: tokens) else {
-            return
-        }
-        for (index, row) in rows.enumerated() {
-            row.tokens = gameLogic.rows[index]
-        }
-        updateSelectionStatus(tokens: newTokens, status: rowToClear == nil ? .selected : .keyMatch)
-        guard let rowToClear = rowToClear else {
-            return
-        }
-        timer?.invalidate()
-        rowToClear.isActive = false
-        flashKeyPair(tokens: newTokens, in: rowToClear)
-    }
-
-    private func flashKeyPair(tokens: [Token], in row: Row, count: Int = 0) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
-            tokens.forEach {
-                $0.selectionStatus = $0.selectionStatus == .none ? .keyMatch : .none
-            }
-            if count < 5 {
-                self.flashKeyPair(tokens: tokens, in: row, count: count + 1)
-            } else {
-                self.clear(row)
-            }
-        }
-    }
-
-    private func clear(_ row: Row) {
-        gameLogic.clearRow(tokens: row.tokens)
+    private func showGameOver() {
         withAnimation {
-            rows = rows.filter { $0 != row }
+            auxiliaryView = .gameOver
         }
-        if gameLogic.levelIsComplete {
-            handleLevelComplete()
+    }
+
+    private func updateRows(with state: GameLogic.State) {
+        var updatedRows = state.rows.map { stateRow in
+            guard let viewModelRow = rows.first(where: { $0.id == stateRow.id }) else {
+                return Row(stateRow)
+            }
+            viewModelRow.update(with: stateRow)
+            return viewModelRow
+        }
+        withAnimation {
+            rows = updatedRows
+        }
+    }
+
+    private func updateTarget(token: Token?) {
+        guard targetToken?.token !== token else {
             return
         }
-        if rows.isEmpty {
-            timeProgress.reset()
-            addRow()
+        var tokenViewModel: TokenViewModel?
+        if let token = token {
+            tokenViewModel = TokenViewModel(token: token)
+            tokenViewModel?.style = .gold
         }
-        startTimer()
-    }
-
-    private func handleLevelComplete() {
-        gameStatus = .inactive
-        timeProgress.reset()
-        levelProgress.status = .flash { [weak self] in
-            self?.handleLevelProgressFlashComplete()
-        }
-    }
-
-    private func handleLevelProgressFlashComplete() {
-        hideCompletedLevel()
-        levelProgress.updateProgress(complete: true)
-        gameStatus = .levelTransition(LevelTransitionInfo(completed: level, next: level + 1))
-    }
-
-    private func hideCompletedLevel() {
         withAnimation {
-            keyToken = nil
-            rows = []
+            targetToken = tokenViewModel
         }
     }
 }
 
+// MARK: Action Handling
+
 extension GameViewModel {
 
-    enum GameStatus {
-        case active
-        case inactive
-        case levelTransition(_ info: LevelTransitionInfo)
-        case gameOver
+    enum Action {
+        case onAppear(_ settings: Settings)
+        case selected(token: Token)
+        case levelTransition
+        case newGame
+    }
 
-        fileprivate var isNewGame: Bool {
-            switch self {
-            case .levelTransition(let levelInfo):
-                return levelInfo.next == 1
-            default:
-                return false
-            }
-        }
-
-        fileprivate static var newGame: Self {
-            .levelTransition(LevelTransitionInfo(completed: nil, next: 1))
+    func handle(_ action: Action) {
+        switch action {
+        case .onAppear(let settings):
+            handleOnAppear(with: settings)
+        case .selected(let token):
+            gameLogic.handle(event: .selectedToken(token))
+        case .levelTransition:
+            gameLogic.handle(event: .levelTransitionComplete)
+        case .newGame:
+            startNewGame()
         }
     }
 
-    struct LevelTransitionInfo {
-        let completed: Int?
-        let next: Int
+    private func handleOnAppear(with settings: Settings) {
+        self.settings = settings
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(750)) {
+            self.startNewGame()
+        }
+    }
+
+    private func startNewGame() {
+        gameLogic.handle(event: .newGame)
+    }
+}
+
+// MARK: Objects
+
+extension GameViewModel {
+
+    enum AuxiliaryView {
+        case levelComplete
+        case levelIntro
+        case gameOver
     }
 
     struct Settings: Equatable {
@@ -272,13 +176,27 @@ extension GameViewModel {
     }
 
     class Row: GameViewModelObject {
-        let id = UUID()
-        var isActive = true
+        let id: UUID
+        @Published var tokens: [TokenViewModel]
 
-        @Published var tokens: [Token]
+        init(_ stateRow: GameLogic.Row) {
+            id = stateRow.id
+            tokens = stateRow.tokens.map { TokenViewModel(token: $0) }
+        }
 
-        init(tokens: [Token]) {
-            self.tokens = tokens
+        fileprivate func update(with stateRow: GameLogic.Row) {
+            guard stateRow.id == id else {
+                return
+            }
+            for (index, token) in stateRow.tokens.enumerated() {
+                let tokenViewModel = tokens[index]
+                guard tokenViewModel.token.attributes == token.attributes else {
+                    tokens[index] = TokenViewModel(token: token)
+                    continue
+                }
+                tokenViewModel.setStyle()
+                tokenViewModel.setIsDimmed(rowIsSolved: stateRow.isSolved)
+            }
         }
     }
 
@@ -313,10 +231,20 @@ extension GameViewModel {
             status = .active(value: 0)
         }
 
+        func flash(count: Int = 0, with completion: @escaping () -> Void) {
+            guard count < 10 else {
+                completion()
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
+                self.status = .active(value: count % 2 == 0 ? 0 : GameLogic.requiredRowsCleared)
+                self.flash(count: count + 1, with: completion)
+            }
+        }
+
         enum Status {
             case active(value: Int)
             case warning
-            case flash(completion: () -> Void)
         }
     }
 }

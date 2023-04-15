@@ -65,10 +65,10 @@ extension GameView {
         }
 
         private func getTokenViews() -> some View {
-            ForEach(row.tokens) { token in
-                TokenView(token: token, size: GameView.tokenSize)
+            ForEach(row.tokens) { tokenViewModel in
+                TokenView(viewModel: tokenViewModel, size: GameView.tokenSize)
                     .onTapGesture {
-                        action(token)
+                        action(tokenViewModel.token)
                     }
             }
         }
@@ -152,22 +152,8 @@ extension GameView {
                 if index >= value { color = colors.off }
             case .warning:
                 color = .red
-            case .flash(let completion):
-                if index == 0 { flash(color: color, with: completion) }
             }
             return color
-        }
-
-        private func flash(color: Color?, count: Int = 0, with completion: @escaping () -> Void) {
-            guard count < 11 else {
-                completion()
-                flashColor = nil
-                return
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
-                flashColor = [colors.on, colors.off].first { $0 != color }
-                flash(color: flashColor, count: count + 1, with: completion)
-            }
         }
 
         enum Style {
@@ -192,52 +178,39 @@ extension GameView {
     }
 
     struct LevelTransitionView: View {
-        @State private var mainScale = 0.0
-        @State private var textScale = 1.0
+        @State private var scale = 0.0
         @State private var message = " " // whitespace keeps layout consistent
-        @State private var isShowingLevelComplete = true
-        @State private var needsCompletion = true
         @State private var animationControl: SequencedAnimation.Control?
-        let levelInfo: GameViewModel.LevelTransitionInfo
-        let callback: (Event) -> Void
+        let level: Int
+        let type: GameViewModel.AuxiliaryView?
+        let callback: () -> Void
 
-        private var mainText: String {
-            isShowingLevelComplete
-            ? "Level \(levelInfo.completed ?? 0)\nComplete"
-            : "Begin Level \(levelInfo.next)"
-        }
+        private var isLevelIntro: Bool { type == .levelIntro }
         private var messages: [String] { ["Ready", "Set", "GO!"] }
 
-        private var animations: [SequencedAnimation] {
-            let delay: TimeInterval = isShowingLevelComplete ? 2 : 1
-            var animations = [
-                SequencedAnimation(delay: delay) {
-                    mainScale = 1
-                }
-            ]
-            if isShowingLevelComplete {
-                animations.append(contentsOf: levelCompleteAnimations)
-            }
-            return animations + countdownAnimations
+        private var mainText: String {
+            isLevelIntro
+            ? "Begin Level \(level)"
+            : "Level \(level)\nComplete"
         }
 
-        private var levelCompleteAnimations: [SequencedAnimation] {
-            [
-                SequencedAnimation {
-                    textScale = 0
-                },
-                SequencedAnimation(duration: 0) {
-                    isShowingLevelComplete = false
-                    callback(.countdownStart)
-                },
-                SequencedAnimation(delay: 1) {
-                    textScale = 1
-                }
-            ]
+        private var animations: [SequencedAnimation] {
+            startAnimation + countdownAnimations + endAnimation
+        }
+
+        private var startAnimation: [SequencedAnimation] {
+            [SequencedAnimation(delay: isLevelIntro ? 1 : 2) { scale = 1 }]
+        }
+
+        private var endAnimation: [SequencedAnimation] {
+            [SequencedAnimation { scale = 0 }]
         }
 
         private var countdownAnimations: [SequencedAnimation] {
-            messages.map { currentMessage in
+            guard isLevelIntro else {
+                return []
+            }
+            return messages.map { currentMessage in
                 SequencedAnimation(
                     duration: 0.4,
                     delay: currentMessage == messages.last ? 0.8 : 0.6
@@ -252,14 +225,12 @@ extension GameView {
                 Spacer()
                 textView
                 Spacer()
-                skipButton
-            }
-            .scaleEffect(mainScale)
-            .onAppear {
-                if levelInfo.completed == nil {
-                    isShowingLevelComplete = false
-                    callback(.countdownStart)
+                if type == .levelIntro {
+                    skipButton
                 }
+            }
+            .scaleEffect(scale)
+            .onAppear {
                 startAnimations()
             }
         }
@@ -270,12 +241,11 @@ extension GameView {
                     .multilineTextAlignment(.center)
                 GameText("\(message)", style: .primaryHot)
             }
-            .scaleEffect(textScale)
         }
 
         private var skipButton: some View {
             Button {
-                callCompletion(animationControl)
+                handleSkipButton()
             } label: {
                 GameText("SKIP", style: .detail)
                     .padding()
@@ -285,24 +255,27 @@ extension GameView {
 
         private func startAnimations() {
             animationControl = animations.start() {
-                callCompletion()
+                handleAnimationComplete()
             }
         }
 
-        private func callCompletion(_ animationControl: SequencedAnimation.Control? = nil) {
-            guard needsCompletion else {
+        private func handleSkipButton() {
+            guard let animationControl = animationControl else {
                 return
             }
-            needsCompletion = false
-            animationControl?.cancel()
-            [SequencedAnimation { mainScale = 0 }].start {
-                callback(.countdownComplete)
+            animationControl.cancel()
+            self.animationControl = nil
+            endAnimation.start {
+                callback()
             }
         }
 
-        enum Event {
-            case countdownStart
-            case countdownComplete
+        private func handleAnimationComplete() {
+            guard animationControl != nil else {
+                return
+            }
+            animationControl = nil
+            callback()
         }
     }
 }
