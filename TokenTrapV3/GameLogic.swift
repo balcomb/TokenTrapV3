@@ -39,6 +39,7 @@ class GameLogic {
             state.level += 1
             state.rows = []
             state.rowsCleared = 0
+            selection = nil
         }
         state.target = getKeyToken()
         state.gamePhase = .levelIntro
@@ -107,14 +108,10 @@ extension GameLogic {
             return false
         }
         let tokenIsInSolvedRow = state.rows.first { $0.tokens.contains(token) }?.isSolved == true
-        guard let selection = selection else {
+        guard let selectedPair = selection?.tokenPair else {
             return !tokenIsInSolvedRow
         }
-        let tokenIsInSelectedPair = (
-            selection.tokens.contains(token)
-            && selection.tokens.count == 2
-            && selection.token1.status == .selected
-        )
+        let tokenIsInSelectedPair = selectedPair.contains(token) && token.status == .selected
         return !(tokenIsInSelectedPair || tokenIsInSolvedRow)
     }
 
@@ -122,43 +119,31 @@ extension GameLogic {
         guard canSelect(selectedToken) else {
             return
         }
-        if let selection = selection, selection.token2 == nil {
-            selection.token2 = selectedToken
-            selection.tokens.set(status: getStatus(for: selection))
-            scheduleUpdate(for: selection)
-        } else {
-            selection?.tokens.set(status: nil)
-            selection = Selection(token1: selectedToken)
-            selectedToken.status = .selected
+        guard let selection = selection, selection.tokenPair == nil else {
+            setSelection(with: selectedToken)
+            return
         }
+        let tokenPair = TokenPair(token1: selection.token1, token2: selectedToken)
+        tokenPair.set(status: getStatus(for: tokenPair))
+        selection.tokenPair = tokenPair
+        scheduleUpdate(for: selection)
     }
 
-    private func getStatus(for selection: Selection) -> Token.Status {
-        let token1 = selection.token1
-        guard let token2 = selection.token2 else {
-            return .selected
-        }
+    private func setSelection(with token: Token) {
+        selection?.tokenPair?.set(status: nil)
+        selection = Selection(token1: token)
+    }
 
-        switch getAdjacencyResult(token1, token2) {
-        case .notAdjacent:
+    private func getStatus(for tokenPair: TokenPair) -> Token.Status {
+        guard tokenPair.isPartialMatch,
+              case .adjacent(let isHorizontal) = getAdjacencyResult(for: tokenPair)
+        else {
             return .rejected
-        case .adjacent(let isHorizontal):
-            guard isPartialMatch(token1, token2) else {
-                return .rejected
-            }
-            if isHorizontal, let rowIndex = getSolvedRowIndex(token1, token2) {
-                state.rows[rowIndex].isSolved = true
-                return .targetMatch
-            }
-            return .selected
         }
-    }
-
-    private func getSolvedRowIndex(_ token1: Token, _ token2: Token) -> Int? {
-        guard areTargetMatch([token1, token2]) else {
-            return nil
+        if isHorizontal && tokenPair.canConvert(to: state.target) {
+            return .targetMatch
         }
-        return state.rows.firstIndex(where: { $0.tokens.contains(token1) })
+        return .selected
     }
 
     private func scheduleUpdate(for selection: Selection) {
@@ -174,7 +159,7 @@ extension GameLogic {
         if selection.token1.status != .rejected {
             updatePartialMatch(from: selection)
         } else {
-            selection.tokens.set(status: nil)
+            selection.tokenPair?.set(status: nil)
         }
         sendState()
         self.selection = nil
@@ -196,17 +181,21 @@ extension GameLogic {
         state.timerValue = 0
     }
 
-    private func convertPartialMatch() -> (token1: Token, token2: Token)? {
-        guard let token1 = selection?.token1,
-              let token2 = selection?.token2,
-              let newToken1 = getFullMatchToken(token1, token2),
-              let newToken2 = getFullMatchToken(token1, token2)
+    private func convertPartialMatch() -> TokenPair? {
+        let isTargetMatch = selection?.token1.status == .targetMatch
+        guard let tokenPair = selection?.tokenPair,
+              let newToken1 = Token(partialMatch: tokenPair),
+              let newToken2 = Token(partialMatch: tokenPair)
         else {
             return nil
         }
-        replace(token1, with: newToken1)
-        replace(token2, with: newToken2)
-        return (newToken1, newToken2)
+        replace(tokenPair.token1, with: newToken1)
+        replace(tokenPair.token2, with: newToken2)
+        let newTokenPair = TokenPair(token1: newToken1, token2: newToken2)
+        if isTargetMatch {
+            newTokenPair.set(status: .targetMatch)
+        }
+        return newTokenPair
     }
 
     private func replace(_ token: Token, with newToken: Token) {
@@ -300,9 +289,9 @@ extension GameLogic {
 
 extension GameLogic {
 
-    private func getAdjacencyResult(_ token1: Token, _ token2: Token) -> AdjacencyResult {
-        if let token1Coordinates = getCoordinates(for: token1),
-           let token2Coordinates = getCoordinates(for: token2) {
+    private func getAdjacencyResult(for tokenPair: TokenPair) -> AdjacencyResult? {
+        if let token1Coordinates = getCoordinates(for: tokenPair.token1),
+           let token2Coordinates = getCoordinates(for: tokenPair.token2) {
             if valuesFitAdjacency(
                 matchingValues: (token1Coordinates.row, token2Coordinates.row),
                 adjacentValues: (token1Coordinates.column, token2Coordinates.column)
@@ -334,43 +323,5 @@ extension GameLogic {
             return nil
         }
         return (column, row)
-    }
-
-    private func isPartialMatch(_ token1: Token, _ token2: Token) -> Bool {
-        token1.attributes != token2.attributes
-        && (
-            token1.attributes.color == token2.attributes.color
-            || token1.attributes.icon == token2.attributes.icon
-        )
-    }
-
-    private func getFullMatchToken(_ token1: Token, _ token2: Token) -> Token? {
-        guard isPartialMatch(token1, token2) else { return nil }
-        let color: Token.Color?
-        let icon: Token.Icon?
-        if token1.attributes.color == token2.attributes.color {
-            color = token1.attributes.color
-            icon = Token.Icon.allCases.first {
-                ![token1.attributes.icon, token2.attributes.icon].contains($0)
-            }
-        } else {
-            icon = token1.attributes.icon
-            color = Token.Color.allCases.first {
-                ![token1.attributes.color, token2.attributes.color].contains($0)
-            }
-        }
-        guard let color = color, let icon = icon else { return nil }
-        return Token(color, icon)
-    }
-
-    private func areTargetMatch(_ tokens: [Token]) -> Bool {
-        guard tokens.count == 2,
-              let token1 = tokens.first,
-              let token2 = tokens.last,
-              let convertedToken = getFullMatchToken(token1, token2)
-        else {
-            return false
-        }
-        return convertedToken.attributes == state.target?.attributes
     }
 }

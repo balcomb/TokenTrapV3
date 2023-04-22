@@ -75,7 +75,10 @@ extension GameLogic {
     struct Row {
         let id = UUID()
         var tokens: [Token]
-        var isSolved = false
+
+        var isSolved: Bool {
+            !tokens.filter { $0.status == .targetMatch }.isEmpty
+        }
 
         mutating func replace(_ token: Token, with newToken: Token) {
             guard let tokenIndex = tokens.firstIndex(where: { $0 === token }) else {
@@ -87,15 +90,12 @@ extension GameLogic {
 
     class Selection {
         let token1: Token
-        var token2: Token?
 
-        init(token1: Token, token2: Token? = nil) {
+        init(token1: Token) {
             self.token1 = token1
-            self.token2 = token2
+            token1.status = .selected
         }
 
-        var tokens: [Token] {
-            [token1, token2].compactMap { $0 }
-        }
+        var tokenPair: TokenPair?
     }
 }
