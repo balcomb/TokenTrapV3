@@ -111,11 +111,15 @@ struct GameView: View {
 
     private var gameOverView: some View {
         VStack {
+            Spacer()
             GameText("Game Over", style: .primaryHot)
-            Button("new game") {
-                viewModel.handle(.newGame)
-            }
-            .foregroundColor(.tokenBackgroundGold)
+            Spacer()
+            Button(
+                action: { viewModel.handle(.newGame) },
+                label: { buttonText("Play Again").padding(.horizontal) }
+            )
+            .bigButton()
+            Spacer()
         }
     }
 

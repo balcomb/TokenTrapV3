@@ -26,6 +26,7 @@
 		B5D273CA28A7F74500B7119A /* TokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C928A7F74500B7119A /* TokenView.swift */; };
 		FF2D53B629214EF8005824DD /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF2D53B529214EF8005824DD /* Launch Screen.storyboard */; };
 		FF2D53B8292157DF005824DD /* GameLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2D53B7292157DF005824DD /* GameLogic.swift */; };
+		FF76E4D02A0814E4007EB939 /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF76E4CF2A0814E4007EB939 /* View+Extensions.swift */; };
 		FFD7FC6129A4287A0085E177 /* GameLogic+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7FC6029A4287A0085E177 /* GameLogic+Extensions.swift */; };
 /* End PBXBuildFile section */
 
@@ -70,6 +71,7 @@
 		B5D273C928A7F74500B7119A /* TokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenView.swift; sourceTree = "<group>"; };
 		FF2D53B529214EF8005824DD /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		FF2D53B7292157DF005824DD /* GameLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLogic.swift; sourceTree = "<group>"; };
+		FF76E4CF2A0814E4007EB939 /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
 		FFD7FC6029A4287A0085E177 /* GameLogic+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GameLogic+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -136,6 +138,7 @@
 				B532CFB228CD2605001B21AF /* Token.swift */,
 				B5D273C928A7F74500B7119A /* TokenView.swift */,
 				B532CFB428D79E84001B21AF /* SequencedAnimation.swift */,
+				FF76E4CF2A0814E4007EB939 /* View+Extensions.swift */,
 				B5D273982896D55C00B7119A /* Assets.xcassets */,
 				B5D2739A2896D55C00B7119A /* Preview Content */,
 				FF2D53B529214EF8005824DD /* Launch Screen.storyboard */,
@@ -312,6 +315,7 @@
 				FF2D53B8292157DF005824DD /* GameLogic.swift in Sources */,
 				B5D273CA28A7F74500B7119A /* TokenView.swift in Sources */,
 				FFD7FC6129A4287A0085E177 /* GameLogic+Extensions.swift in Sources */,
+				FF76E4D02A0814E4007EB939 /* View+Extensions.swift in Sources */,
 				B5D273BF2896D59200B7119A /* Coordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

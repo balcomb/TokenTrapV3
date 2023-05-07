@@ -61,8 +61,7 @@ struct MenuView: View {
         makeButton("Play") {
             action(.game(settings: .init(skillLevel: skillLevel)))
         }
-        .tint(.buttonBlue)
-        .buttonStyle(.borderedProminent)
+        .bigButton()
         .padding(.vertical)
     }
 
@@ -95,24 +94,17 @@ struct MenuView: View {
 
     private func makeButton(_ text: String, action: @escaping () -> Void) -> some View {
         Button(
-            action: { action() },
+            action: action,
             label: {
                 Spacer()
-                Text(text).fontWeight(.heavy)
+                buttonText(text)
                 Spacer()
             }
         )
-        .buttonBorderShape(.roundedRectangle)
     }
 
     private func makeSmallButton(_ text: String, action: @escaping () -> Void) -> some View {
-        makeButton(
-            text,
-            action: action
-        )
-        .controlSize(.small)
-        .tint(.logoBlue)
-        .buttonStyle(.bordered)
-        .foregroundColor(.white)
+        makeButton(text, action: action)
+            .smallButton()
     }
 }
