@@ -11,7 +11,6 @@ import Combine
 class GameLogic {
 
     private lazy var state = State()
-    private var selection: Selection?
 
     private lazy var timer = RowTimer { [weak self] value in
         self?.handleTimer(value)
@@ -23,11 +22,7 @@ class GameLogic {
     }
 
     private var levelIsComplete: Bool {
-        state.rowsCleared + solvedRowCount == Self.requiredRowsCleared
-    }
-
-    private var solvedRowCount: Int {
-        state.rows.filter { $0.isSolved }.count
+        state.solvedRows.count == Self.requiredRowsCleared
     }
 
     private func sendState() {
@@ -38,8 +33,8 @@ class GameLogic {
         if state.score > 0 {
             state.level += 1
             state.rows = []
-            state.rowsCleared = 0
-            selection = nil
+            state.solvedRows = []
+            state.selections = []
         }
         state.target = getKeyToken()
         state.gamePhase = .levelIntro
@@ -107,11 +102,13 @@ extension GameLogic {
         guard !(levelIsComplete || state.gamePhase == .gameOver) else {
             return false
         }
-        let tokenIsInSolvedRow = state.rows.first { $0.tokens.contains(token) }?.isSolved == true
-        guard let selectedPair = selection?.tokenPair else {
+        let tokenIsInSolvedRow = isSolved(row: state.rows.first { $0.tokens.contains(token) })
+        guard let selection = state.selections.first(where: { $0.tokens.contains(token) }),
+              let selectedPair = selection.tokenPair
+        else {
             return !tokenIsInSolvedRow
         }
-        let tokenIsInSelectedPair = selectedPair.contains(token) && token.status == .selected
+        let tokenIsInSelectedPair = selectedPair.contains(token) && selection.status != .rejected
         return !(tokenIsInSelectedPair || tokenIsInSolvedRow)
     }
 
@@ -119,22 +116,36 @@ extension GameLogic {
         guard canSelect(selectedToken) else {
             return
         }
-        guard let selection = selection, selection.tokenPair == nil else {
-            setSelection(with: selectedToken)
+        guard let selection = state.selections.last, selection.tokenPair == nil else {
+            state.selections.append(Selection(selectedToken))
             return
         }
-        let tokenPair = TokenPair(token1: selection.token1, token2: selectedToken)
-        tokenPair.set(status: getStatus(for: tokenPair))
-        selection.tokenPair = tokenPair
-        scheduleUpdate(for: selection)
+        process(selectedPair: TokenPair(token1: selection.token1, token2: selectedToken))
     }
 
-    private func setSelection(with token: Token) {
-        selection?.tokenPair?.set(status: nil)
-        selection = Selection(token1: token)
+    private func process(selectedPair: TokenPair) {
+        guard let selectionIndex = state.selections.firstIndex(
+            where: { $0.token1 == selectedPair.token1 }
+        ) else {
+            return
+        }
+        state.selections[selectionIndex].tokenPair = selectedPair
+        let selectionStatus = getStatus(for: selectedPair)
+        state.selections[selectionIndex].status = selectionStatus
+        updateSolvedRows(with: selectionStatus, selectedPair)
+        scheduleUpdate(for: state.selections[selectionIndex])
     }
 
-    private func getStatus(for tokenPair: TokenPair) -> Token.Status {
+    private func updateSolvedRows(with selectionStatus: Selection.Status, _ tokenPair: TokenPair) {
+        guard selectionStatus == .targetMatch,
+              let solvedRow = getRow(for: [tokenPair.token1])
+        else {
+            return
+        }
+        state.solvedRows.append(SolvedRow(row: solvedRow, targetPair: tokenPair))
+    }
+
+    private func getStatus(for tokenPair: TokenPair) -> Selection.Status {
         guard tokenPair.isPartialMatch,
               case .adjacent(let isHorizontal) = getAdjacencyResult(for: tokenPair)
         else {
@@ -143,36 +154,39 @@ extension GameLogic {
         if isHorizontal && tokenPair.canConvert(to: state.target) {
             return .targetMatch
         }
-        return .selected
+        return .partialMatch
     }
 
-    private func scheduleUpdate(for selection: Selection) {
+    private func scheduleUpdate(for selection: Selection?) {
+        guard let selection = selection else {
+            return
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
             self.executeUpdate(for: selection)
         }
     }
 
     private func executeUpdate(for selection: Selection) {
-        guard self.selection === selection else {
-            return
-        }
-        if selection.token1.status != .rejected {
+        if selection.status != .rejected {
             updatePartialMatch(from: selection)
-        } else {
-            selection.tokenPair?.set(status: nil)
         }
+        state.selections.removeAll { $0 == selection }
         sendState()
-        self.selection = nil
     }
 
     private func updatePartialMatch(from selection: Selection) {
-        guard let convertedTokens = convertPartialMatch(),
-              let row = getRow(for: [convertedTokens.token1, convertedTokens.token2]),
-              row.isSolved
+        guard let selectedPair = selection.tokenPair,
+              let convertedTokens = convertPartialMatch(for: selectedPair)
         else {
             return
         }
-        [convertedTokens.token1, convertedTokens.token2].set(status: .targetMatch)
+        replace(selectedPair.token1, with: convertedTokens.token1)
+        replace(selectedPair.token2, with: convertedTokens.token2)
+        guard let row = getRow(for: [convertedTokens.token1, convertedTokens.token2]),
+              isSolved(row: row)
+        else {
+            return
+        }
         scheduleRemoval(rowId: row.id)
         guard levelIsComplete || state.rows.count == 1 else {
             return
@@ -181,21 +195,13 @@ extension GameLogic {
         state.timerValue = 0
     }
 
-    private func convertPartialMatch() -> TokenPair? {
-        let isTargetMatch = selection?.token1.status == .targetMatch
-        guard let tokenPair = selection?.tokenPair,
-              let newToken1 = Token(partialMatch: tokenPair),
+    private func convertPartialMatch(for tokenPair: TokenPair) -> TokenPair? {
+        guard let newToken1 = Token(partialMatch: tokenPair),
               let newToken2 = Token(partialMatch: tokenPair)
         else {
             return nil
         }
-        replace(tokenPair.token1, with: newToken1)
-        replace(tokenPair.token2, with: newToken2)
-        let newTokenPair = TokenPair(token1: newToken1, token2: newToken2)
-        if isTargetMatch {
-            newTokenPair.set(status: .targetMatch)
-        }
-        return newTokenPair
+        return TokenPair(token1: newToken1, token2: newToken2)
     }
 
     private func replace(_ token: Token, with newToken: Token) {
@@ -211,12 +217,19 @@ extension GameLogic {
 extension GameLogic {
 
     private var canAddRows: Bool {
-        state.rows.count - solvedRowCount < Self.gridSize
+        state.rows.filter { !isSolved(row: $0) }.count < Self.gridSize
     }
 
     private func startRows() {
         addRow()
         timer.start()
+    }
+
+    private func isSolved(row: Row?) -> Bool {
+        guard let rowId = row?.id else {
+            return false
+        }
+        return state.solvedRows.contains { $0?.id == rowId }
     }
 
     private func handleTimer(_ value: Int) {
@@ -274,7 +287,6 @@ extension GameLogic {
 
     private func removeRow(with id: UUID) {
         state.rows.removeAll { $0.id == id }
-        state.rowsCleared += 1
         state.score += 5
         if levelIsComplete {
             state.gamePhase = .levelComplete
@@ -318,7 +330,7 @@ extension GameLogic {
     private func getCoordinates(for token: Token) -> (column: Int, row: Int)? {
         let rows = state.rows
         guard let row = rows.firstIndex(where: { $0.tokens.contains(token) }),
-              let column = rows[row].tokens.firstIndex(where: { $0 === token })
+              let column = rows[row].tokens.firstIndex(where: { $0 == token })
         else {
             return nil
         }

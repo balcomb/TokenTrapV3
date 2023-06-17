@@ -48,7 +48,8 @@ struct TokenView: View {
         case .green: return .tokenBackgroundGreen
         case .red: return .tokenBackgroundRed
         case .gold: return .tokenBackgroundGold
-        default: return .white
+        case .gray: return .tokenBackgroundGray
+        default: return .tokenBackgroundDefault
         }
     }
 }

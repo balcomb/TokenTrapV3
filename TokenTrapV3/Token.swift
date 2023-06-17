@@ -7,20 +7,19 @@
 
 import Foundation
 
-class Token {
+struct Token: GameLogicResource {
+    let id = UUID()
     var attributes: Attributes
-    var status: Status?
 
     static var random: Token {
         Token(Color.allCases.randomElement()!, Icon.allCases.randomElement()!)
     }
 
-    init(_ color: Color, _ icon: Icon, status: Status? = nil) {
-        self.attributes = Attributes(color: color, icon: icon)
-        self.status = status
+    init(_ color: Color, _ icon: Icon) {
+        attributes = Attributes(color: color, icon: icon)
     }
 
-    convenience init?(partialMatch pair: TokenPair) {
+    init?(partialMatch pair: TokenPair) {
         guard pair.isPartialMatch else {
             return nil
         }
@@ -63,17 +62,11 @@ class Token {
         case gray = "TokenGray"
         case red = "TokenRed"
     }
-
-    enum Status {
-        case selected
-        case rejected
-        case targetMatch
-    }
 }
 
 struct TokenPair {
-    let token1: Token
-    let token2: Token
+    var token1: Token
+    var token2: Token
 
     var isPartialMatch: Bool {
         guard token1.attributes != token2.attributes else {
@@ -97,12 +90,7 @@ struct TokenPair {
     }
 
     func contains(_ token: Token) -> Bool {
-        token === token1 || token === token2
-    }
-
-    func set(status: Token.Status?) {
-        token1.status = status
-        token2.status = status
+        token == token1 || token == token2
     }
 }
 
@@ -111,52 +99,51 @@ class TokenViewModel: GameViewModelObject {
     @Published var style: Style?
     @Published var isDimmed = false
 
-    init(token: Token) {
+    init(token: Token, style: Style? = nil) {
         self.token = token
-        setStyle()
+        self.style = style
     }
 
-    func setIsDimmed(rowIsSolved: Bool) {
-        let isDimmed = rowIsSolved && token.status == nil
-        guard self.isDimmed != isDimmed else {
+    func update(with state: GameLogic.State, _ stateRow: GameLogic.Row, _ index: Int) {
+        setStyle(
+            isTargetMatch: state.solvedRows.has(index, in: stateRow),
+            selection: state.selections.last
+        )
+        guard style == nil else {
             return
         }
-        self.isDimmed = isDimmed
+        isDimmed = state.solvedRows.contains { $0?.id == stateRow.id }
     }
 
-    func setStyle() {
-        let newStyle = Style(tokenStatus: token.status)
-        guard newStyle != style else {
+    private func setStyle(isTargetMatch: Bool, selection: GameLogic.Selection?) {
+        if isTargetMatch {
+            style = .gold
             return
         }
-        style = newStyle
+        guard let selection = selection, selection.tokens.contains(token) else {
+            style = nil
+            return
+        }
+        style = Style(selection.status)
     }
 
     enum Style {
+        case gray
         case green
         case red
         case gold
 
-        init?(tokenStatus: Token.Status?) {
-            switch tokenStatus {
-            case .selected: self = .green
-            case .rejected: self = .red
-            case .targetMatch: self = .gold
-            default: return nil
+        init(_ selectionStatus: GameLogic.Selection.Status) {
+            switch selectionStatus {
+            case .selected:
+                self = .gray
+            case .rejected:
+                self = .red
+            case .partialMatch:
+                self = .green
+            case .targetMatch:
+                self = .gold
             }
-        }
-    }
-}
-
-extension Array where Element == Token {
-
-    func contains(_ token: Token) -> Bool {
-        contains { $0 === token }
-    }
-
-    func set(status: Token.Status?) {
-        forEach {
-            $0.status = status
         }
     }
 }

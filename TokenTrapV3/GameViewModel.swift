@@ -31,8 +31,11 @@ extension GameViewModel {
 
     private func monitorState() {
         Task { [weak self] in
-            for await state in gameLogic.stateSequence {
-                self?.handle(state)
+            guard let self = self else {
+                return
+            }
+            for await state in self.gameLogic.stateSequence {
+                self.handle(state)
             }
         }
     }
@@ -43,7 +46,7 @@ extension GameViewModel {
         level = state.level
         score = state.score
         timeProgress.status = .active(value: state.timerValue)
-        levelProgress.status = .active(value: state.rowsCleared)
+        levelProgress.status = .active(value: state.solvedRows.count)
 
         switch state.gamePhase {
         case .levelComplete:
@@ -93,11 +96,11 @@ extension GameViewModel {
     }
 
     private func updateRows(with state: GameLogic.State) {
-        var updatedRows = state.rows.map { stateRow in
+        let updatedRows = state.rows.map { stateRow in
             guard let viewModelRow = rows.first(where: { $0.id == stateRow.id }) else {
                 return Row(stateRow)
             }
-            viewModelRow.update(with: stateRow)
+            viewModelRow.update(with: state, stateRow)
             return viewModelRow
         }
         withAnimation {
@@ -106,7 +109,7 @@ extension GameViewModel {
     }
 
     private func updateTarget(token: Token?) {
-        guard targetToken?.token !== token else {
+        guard targetToken?.token != token else {
             return
         }
         var tokenViewModel: TokenViewModel?
@@ -184,18 +187,19 @@ extension GameViewModel {
             tokens = stateRow.tokens.map { TokenViewModel(token: $0) }
         }
 
-        fileprivate func update(with stateRow: GameLogic.Row) {
+        fileprivate func update(with state: GameLogic.State, _ stateRow: GameLogic.Row) {
             guard stateRow.id == id else {
                 return
             }
             for (index, token) in stateRow.tokens.enumerated() {
                 let tokenViewModel = tokens[index]
-                guard tokenViewModel.token.attributes == token.attributes else {
-                    tokens[index] = TokenViewModel(token: token)
+                guard tokenViewModel.token != token else {
                     continue
                 }
-                tokenViewModel.setStyle()
-                tokenViewModel.setIsDimmed(rowIsSolved: stateRow.isSolved)
+                tokens[index] = TokenViewModel(token: token)
+            }
+            for (index, tokenViewModel) in tokens.enumerated() {
+                tokenViewModel.update(with: state, stateRow, index)
             }
         }
     }
