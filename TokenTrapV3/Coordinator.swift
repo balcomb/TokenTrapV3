@@ -11,8 +11,6 @@ struct Coordinator: View {
     @State private var isShowingGame = false
     @State private var isShowingLearnHow = false
 
-    @State private var gameSettings = GameViewModel.Settings()
-
     var body: some View {
         NavigationView {
             menu
@@ -22,7 +20,7 @@ struct Coordinator: View {
             LearnHowView(isShowingLearnHow: $isShowingLearnHow)
         }
         .fullScreenCover(isPresented: $isShowingGame) {
-            GameView(settings: gameSettings) { isShowingGame = false }
+            GameView { isShowingGame = false }
         }
     }
 
@@ -34,9 +32,6 @@ struct Coordinator: View {
     }
 
     private func handle(destination: Destination) {
-        if case .game(let settings) = destination {
-            gameSettings = settings
-        }
         setPresentation(with: destination)
     }
 
@@ -55,6 +50,6 @@ struct Coordinator: View {
 extension Coordinator {
     enum Destination: Equatable {
         case learnHow
-        case game(settings: GameViewModel.Settings)
+        case game
     }
 }

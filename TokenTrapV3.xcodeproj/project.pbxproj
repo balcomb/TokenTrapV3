@@ -24,6 +24,7 @@
 		B5D273C628A0260E00B7119A /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C528A0260E00B7119A /* GameView.swift */; };
 		B5D273C828A0263500B7119A /* LearnHowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C728A0263500B7119A /* LearnHowView.swift */; };
 		B5D273CA28A7F74500B7119A /* TokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C928A7F74500B7119A /* TokenView.swift */; };
+		FF25DE322A3F92C5008C5555 /* GameLogic+RowGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF25DE312A3F92C5008C5555 /* GameLogic+RowGenerator.swift */; };
 		FF2D53B629214EF8005824DD /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF2D53B529214EF8005824DD /* Launch Screen.storyboard */; };
 		FF2D53B8292157DF005824DD /* GameLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2D53B7292157DF005824DD /* GameLogic.swift */; };
 		FF76E4D02A0814E4007EB939 /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF76E4CF2A0814E4007EB939 /* View+Extensions.swift */; };
@@ -69,6 +70,7 @@
 		B5D273C528A0260E00B7119A /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		B5D273C728A0263500B7119A /* LearnHowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnHowView.swift; sourceTree = "<group>"; };
 		B5D273C928A7F74500B7119A /* TokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenView.swift; sourceTree = "<group>"; };
+		FF25DE312A3F92C5008C5555 /* GameLogic+RowGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GameLogic+RowGenerator.swift"; sourceTree = "<group>"; };
 		FF2D53B529214EF8005824DD /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		FF2D53B7292157DF005824DD /* GameLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLogic.swift; sourceTree = "<group>"; };
 		FF76E4CF2A0814E4007EB939 /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 				B5D273962896D55900B7119A /* MenuView.swift */,
 				FF2D53B7292157DF005824DD /* GameLogic.swift */,
 				FFD7FC6029A4287A0085E177 /* GameLogic+Extensions.swift */,
+				FF25DE312A3F92C5008C5555 /* GameLogic+RowGenerator.swift */,
 				B532CFB028CD0C3A001B21AF /* GameViewModel.swift */,
 				B5D273C528A0260E00B7119A /* GameView.swift */,
 				B532CFB628E8E38F001B21AF /* GameView+Extensions.swift */,
@@ -311,6 +314,7 @@
 				B5D273C828A0263500B7119A /* LearnHowView.swift in Sources */,
 				B5D273952896D55900B7119A /* TokenTrapV3App.swift in Sources */,
 				B532CFB728E8E390001B21AF /* GameView+Extensions.swift in Sources */,
+				FF25DE322A3F92C5008C5555 /* GameLogic+RowGenerator.swift in Sources */,
 				B5D273C628A0260E00B7119A /* GameView.swift in Sources */,
 				FF2D53B8292157DF005824DD /* GameLogic.swift in Sources */,
 				B5D273CA28A7F74500B7119A /* TokenView.swift in Sources */,

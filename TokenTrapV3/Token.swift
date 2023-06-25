@@ -47,6 +47,24 @@ struct Token: GameLogicResource {
     struct Attributes: Equatable {
         let color: Color
         let icon: Icon
+
+        var partialMatches: [Attributes] {
+            var possibleAttributes: [Token.Attributes] = []
+            Token.Color.allCases.forEach { color in
+                Token.Icon.allCases.forEach { icon in
+                    let attributes = Token.Attributes(color: color, icon: icon)
+                    guard isPartialMatch(for: attributes) else {
+                        return
+                    }
+                    possibleAttributes.append(attributes)
+                }
+            }
+            return possibleAttributes
+        }
+
+        func isPartialMatch(for attributes: Attributes) -> Bool {
+            self != attributes && (color == attributes.color || icon == attributes.icon)
+        }
     }
 
     enum Icon: String, CaseIterable, Identifiable {
@@ -69,11 +87,20 @@ struct TokenPair {
     var token2: Token
 
     var isPartialMatch: Bool {
-        guard token1.attributes != token2.attributes else {
-            return false
-        }
-        return token1.attributes.color == token2.attributes.color
-            || token1.attributes.icon == token2.attributes.icon
+        token1.attributes.isPartialMatch(for: token2.attributes)
+    }
+
+    init(token1: Token, token2: Token) {
+        self.token1 = token1
+        self.token2 = token2
+    }
+
+    init(partialMatchTarget: Token) {
+        let possibleAttributes = partialMatchTarget.attributes.partialMatches
+        let attributes1 = possibleAttributes.randomElement()!
+        let attributes2 = possibleAttributes.first { $0.isPartialMatch(for: attributes1) }!
+        token1 = Token(attributes1.color, attributes1.icon)
+        token2 = Token(attributes2.color, attributes2.icon)
     }
 
     func canConvert(to token: Token?) -> Bool {

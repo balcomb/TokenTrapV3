@@ -9,7 +9,6 @@ import SwiftUI
 
 struct GameView: View {
     @StateObject private var viewModel = GameViewModel()
-    let settings: GameViewModel.Settings
     let completion: () -> Void
 
     static var boardWidth: CGFloat {
@@ -31,7 +30,7 @@ struct GameView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
         .onAppear {
-            viewModel.handle(.onAppear(settings))
+            viewModel.handle(.onAppear)
         }
     }
 
@@ -49,7 +48,7 @@ struct GameView: View {
 
     private var pauseButton: some View {
         Button {
-            completion()
+            handlePauseButton()
         } label: {
             Image(systemName: "pause.circle")
                 .resizable()
@@ -152,5 +151,10 @@ struct GameView: View {
         LevelTransitionView(level: viewModel.level, type: viewModel.auxiliaryView) {
             viewModel.handle(.levelTransition)
         }
+    }
+
+    private func handlePauseButton() {
+        viewModel.handle(.pause)
+        completion()
     }
 }

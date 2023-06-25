@@ -10,7 +10,9 @@ import Combine
 
 class GameLogic {
 
+    static var settings = Settings()
     private lazy var state = State()
+    private lazy var rowGenerator = RowGenerator()
 
     private lazy var timer = RowTimer { [weak self] value in
         self?.handleTimer(value)
@@ -36,12 +38,12 @@ class GameLogic {
             state.solvedRows = []
             state.selections = []
         }
-        state.target = getKeyToken()
+        state.target = getTargetToken()
         state.gamePhase = .levelIntro
         sendState()
     }
 
-    private func getKeyToken() -> Token {
+    private func getTargetToken() -> Token {
         var randomToken = Token.random
         while randomToken.attributes == state.target?.attributes {
             randomToken = Token.random
@@ -70,6 +72,8 @@ extension GameLogic {
             handleNewGame()
         case .levelTransitionComplete:
             handleLevelTransitionComplete()
+        case .pause:
+            timer.cancel()
         }
     }
 
@@ -249,7 +253,11 @@ extension GameLogic {
     }
 
     private func addRow() {
-        state.rows.insert(makeRow(), at: 0)
+        guard let target = state.target else {
+            return
+        }
+        let row = rowGenerator.getNextRow(for: target, state.level)
+        state.rows.insert(row, at: 0)
     }
 
     private func endGame() {
@@ -263,20 +271,6 @@ extension GameLogic {
                 row.tokens.contains(token)
             }
         }
-    }
-
-    private func makeRow() -> Row {
-        guard let keyToken = state.target else {
-            return Row(tokens: [])
-        }
-        let tokens = (0..<Self.gridSize).map { index in
-            if index < 2 {
-                return Token(Token.Color.allCases.filter({ $0 != keyToken.attributes.color })[index], keyToken.attributes.icon)
-            }
-            return Token.random
-        }
-        let row = Row(tokens: tokens)
-        return row
     }
 
     private func scheduleRemoval(rowId: UUID) {

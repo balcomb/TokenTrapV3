@@ -16,6 +16,15 @@ extension GameLogicResource {
 
 extension GameLogic {
 
+    struct Settings: Equatable {
+        var skillLevel = SkillLevel.basic
+        var isTrainingMode = false
+
+        enum SkillLevel {
+            case basic, expert
+        }
+    }
+
     class RowTimer {
         static var indicatorCount = 4
         var isFull: Bool { value == Self.indicatorCount }
@@ -66,6 +75,7 @@ extension GameLogic {
         case newGame
         case levelTransitionComplete
         case selectedToken(_ token: Token)
+        case pause
     }
 
     enum GamePhase {

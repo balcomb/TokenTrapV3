@@ -15,7 +15,6 @@ class GameViewModel: ObservableObject {
     @Published var targetToken: TokenViewModel?
     @Published var auxiliaryView: AuxiliaryView?
     @Published var rowOpacity: CGFloat = 1
-    private var settings: Settings?
     private(set) lazy var timeProgress = Progress(count: GameLogic.RowTimer.indicatorCount)
     private(set) lazy var levelProgress = Progress(count: GameLogic.requiredRowsCleared)
     private lazy var gameLogic = GameLogic()
@@ -128,27 +127,29 @@ extension GameViewModel {
 extension GameViewModel {
 
     enum Action {
-        case onAppear(_ settings: Settings)
+        case onAppear
         case selected(token: Token)
         case levelTransition
         case newGame
+        case pause
     }
 
     func handle(_ action: Action) {
         switch action {
-        case .onAppear(let settings):
-            handleOnAppear(with: settings)
+        case .onAppear:
+            handleOnAppear()
         case .selected(let token):
             gameLogic.handle(event: .selectedToken(token))
         case .levelTransition:
             gameLogic.handle(event: .levelTransitionComplete)
         case .newGame:
             startNewGame()
+        case .pause:
+            gameLogic.handle(event: .pause)
         }
     }
 
-    private func handleOnAppear(with settings: Settings) {
-        self.settings = settings
+    private func handleOnAppear() {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(750)) {
             self.startNewGame()
         }
@@ -167,15 +168,6 @@ extension GameViewModel {
         case levelComplete
         case levelIntro
         case gameOver
-    }
-
-    struct Settings: Equatable {
-        var skillLevel = SkillLevel.basic
-        var isTrainingMode = false
-
-        enum SkillLevel {
-            case basic, expert
-        }
     }
 
     class Row: GameViewModelObject {
