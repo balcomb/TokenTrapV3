@@ -83,8 +83,10 @@ struct Token: GameLogicResource {
 }
 
 struct TokenPair {
-    var token1: Token
-    var token2: Token
+    let token1: Token
+    let token2: Token
+
+    var tokens: [Token] { [token1, token2] }
 
     var isPartialMatch: Bool {
         token1.attributes.isPartialMatch(for: token2.attributes)
