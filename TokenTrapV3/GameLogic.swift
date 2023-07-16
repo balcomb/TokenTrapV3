@@ -253,10 +253,9 @@ extension GameLogic {
     }
 
     private func addRow() {
-        guard let target = state.target else {
+        guard let row = rowGenerator.getNextRow(for: state) else {
             return
         }
-        let row = rowGenerator.getNextRow(for: target, state.level)
         state.rows.insert(row, at: 0)
     }
 
@@ -280,14 +279,25 @@ extension GameLogic {
     }
 
     private func removeRow(with id: UUID) {
-        state.rows.removeAll { $0.id == id }
-        state.score += 5
+        guard let index = state.rows.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+        state.score += getScoreForRow(at: index)
+        state.rows.remove(at: index)
         if levelIsComplete {
             state.gamePhase = .levelComplete
         } else if state.rows.isEmpty {
             startRows()
         }
         sendState()
+    }
+
+    private func getScoreForRow(at index: Int) -> Int {
+        switch state.rows[index].challengeType {
+        case .uniform: return 10
+        case .wildcardRow: return 20
+        default: return 5
+        }
     }
 }
 

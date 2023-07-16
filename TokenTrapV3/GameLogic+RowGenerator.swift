@@ -13,15 +13,28 @@ extension GameLogic {
 
         private var isExpertMode: Bool { GameLogic.settings.skillLevel == .expert }
 
-        func getNextRow(for target: Token, _ level: Int) -> Row {
-            Row(tokens: getTokens(target, level))
+        func getNextRow(for state: GameLogic.State) -> Row? {
+            guard let target = state.target else {
+                return nil
+            }
+            let challengeType = getChallengeType(for: state)
+            let tokens = getTokens(target, state.level, challengeType)
+            return Row(tokens: tokens, challengeType: challengeType)
         }
 
-        private func getTokens(_ target: Token, _ level: Int) -> [Token] {
+        private func getTokens(
+            _ target: Token,
+            _ level: Int,
+            _ challengeType: Row.ChallengeType?
+        ) -> [Token] {
+            if challengeType == .uniform {
+                return getUniformRow()
+            }
             let keySequence = getKeySequence(for: target, level)
             var tokens = (0..<(GameLogic.gridSize - keySequence.count)).map { _ in Token.random }
             let keySequenceIndex = Int.random(in: 0...tokens.endIndex)
             tokens.insert(contentsOf: keySequence, at: keySequenceIndex)
+            addWildcards(to: &tokens, for: challengeType)
             return tokens
         }
 
@@ -34,6 +47,8 @@ extension GameLogic {
             }
             return getDisguisedSequence(for: initialPair, disguiseValues)
         }
+
+        // MARK: Disguise Logic
 
         private func getDisguisedSequence(
             for initialPair: TokenPair,
@@ -79,6 +94,94 @@ extension GameLogic {
 
         private enum DisguiseType: CaseIterable {
             case single, double
+        }
+
+        // MARK: Challenge Logic
+
+        private func getChallengeType(for state: GameLogic.State) -> Row.ChallengeType? {
+            let challengeLogic = ChallengeLogic(state, isExpertMode)
+            if challengeLogic.shouldAddUniformRow {
+                return .uniform
+            }
+            if challengeLogic.shouldAddWildcardRow {
+                return .wildcardRow
+            }
+            if challengeLogic.isWildcardSingleEligible {
+                return .wildcardSingle
+            }
+            return nil
+        }
+
+        private func getUniformRow() -> [Token] {
+            var tokens: [Token] = []
+            let attributes = Token.random.attributes
+            for _ in (0..<GameLogic.gridSize) {
+                tokens.append(Token(attributes.color, attributes.icon))
+            }
+            return tokens
+        }
+
+        private func addWildcards(to tokens: inout [Token], for challengeType: Row.ChallengeType?) {
+            let wildcardIndices: [Int]
+            switch challengeType {
+            case .wildcardRow:
+                wildcardIndices = tokens.indices.map { $0 }
+            case .wildcardSingle:
+                guard let randomIndex = tokens.indices.randomElement() else {
+                    fallthrough
+                }
+                wildcardIndices = [randomIndex]
+            default:
+                wildcardIndices = []
+            }
+            wildcardIndices.forEach { index in
+                tokens[index].isWildcard = true
+            }
+        }
+
+        struct ChallengeLogic {
+            /**
+             * challenge progression:
+             * 1: uniform rows
+             * 2: one wildcard per row (+ uniform for expert mode)
+             * 3: wildcard rows (+ uniform & one wildcard per row for expert mode)
+             * rest of game: both challenge rows plus one wildcard per row
+             */
+            private let canAddChallengeRow: Bool
+            private let isWildcardRowEligible: Bool
+            private var isUniformEligible: Bool
+
+            var isWildcardSingleEligible: Bool
+
+            var shouldAddUniformRow: Bool {
+                canAddChallengeRow && isUniformEligible && Bool.random()
+            }
+
+            var shouldAddWildcardRow: Bool {
+                canAddChallengeRow && isWildcardRowEligible && Bool.random()
+            }
+
+            init(_ state: GameLogic.State, _ isExpertMode: Bool) {
+                let level = state.level
+                let rows = state.rows
+                let startLevel = isExpertMode ? 2 : 5
+                let wildcardRowStartLevel = startLevel + 2
+                let isAllChallengeEligible = level > wildcardRowStartLevel
+                canAddChallengeRow = rows.count > 2 && rows.allSatisfy { $0.challengeType == nil }
+                isWildcardRowEligible = level >= wildcardRowStartLevel
+                isUniformEligible = isAllChallengeEligible
+                isWildcardSingleEligible = isAllChallengeEligible
+                guard !isAllChallengeEligible else {
+                    return
+                }
+                if isExpertMode {
+                    isUniformEligible = level >= startLevel
+                    isWildcardSingleEligible = level > startLevel
+                } else {
+                    isUniformEligible = level == startLevel
+                    isWildcardSingleEligible = level == startLevel + 1
+                }
+            }
         }
     }
 }

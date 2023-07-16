@@ -20,4 +20,5 @@ extension Color {
     static var tokenBackgroundRed: Color { Color("TokenBackgroundRed") }
     static var darkGreen: Color { Color("DarkGreen") }
     static var progressOff: Color { Color("ProgressOff") }
+    static var wildcardPurple: Color { Color("WildcardPurple") }
 }

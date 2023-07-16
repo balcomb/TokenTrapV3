@@ -93,6 +93,11 @@ extension GameLogic {
     struct Row: GameLogicResource {
         let id = UUID()
         var tokens: [Token]
+        var challengeType: ChallengeType?
+
+        enum ChallengeType {
+            case uniform, wildcardRow, wildcardSingle
+        }
     }
 
     struct SolvedRow {

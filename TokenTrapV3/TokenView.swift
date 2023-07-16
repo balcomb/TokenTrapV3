@@ -16,7 +16,11 @@ struct TokenView: View {
     var body: some View {
         ZStack {
             background
-            icon
+            if viewModel.isWildcard {
+                wildcardIcon
+            } else {
+                icon
+            }
         }
         .frame(width: size, height: size)
         .opacity(viewModel.isDimmed ? 0.7 : 1)
@@ -24,6 +28,12 @@ struct TokenView: View {
 
     private var background: some View {
         Circle().foregroundColor(circleColor)
+    }
+
+    private var wildcardIcon: some View {
+        Text("?")
+            .font(.custom("AmericanTypewriter-Bold", fixedSize: size * 0.8))
+            .foregroundColor(.wildcardPurple)
     }
 
     private var icon: some View {

@@ -10,6 +10,7 @@ import Foundation
 struct Token: GameLogicResource {
     let id = UUID()
     var attributes: Attributes
+    var isWildcard = false
 
     static var random: Token {
         Token(Color.allCases.randomElement()!, Icon.allCases.randomElement()!)
@@ -127,6 +128,7 @@ class TokenViewModel: GameViewModelObject {
     let token: Token
     @Published var style: Style?
     @Published var isDimmed = false
+    var isWildcard: Bool { token.isWildcard }
 
     init(token: Token, style: Style? = nil) {
         self.token = token
