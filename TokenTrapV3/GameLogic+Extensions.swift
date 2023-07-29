@@ -30,14 +30,29 @@ extension GameLogic {
         var isFull: Bool { value == Self.indicatorCount }
         private var value = 0
         private var timer: Timer?
-        private var timeInterval: TimeInterval = 1
+        private var timeInterval: TimeInterval?
         private let callback: (Int) -> Void
 
         init(callback: @escaping (Int) -> Void) {
             self.callback = callback
         }
 
+        func setTimeInterval(with level: Int, _ settings: Settings) {
+            let defaultInterval = 1.2
+            let lastDefaultIntervalLevel = settings.skillLevel == .expert ? 4 : 8
+            guard !settings.isTrainingMode && level > lastDefaultIntervalLevel else {
+                timeInterval = defaultInterval
+                return
+            }
+            let exponent = Double(level - lastDefaultIntervalLevel)
+            let factor = pow(0.9, exponent)
+            timeInterval = defaultInterval * factor
+        }
+
         func start() {
+            guard let timeInterval = timeInterval else {
+                return
+            }
             timer?.invalidate()
             value = 0
             timer = .scheduledTimer(
@@ -53,7 +68,7 @@ extension GameLogic {
         }
 
         private func handleTimer() {
-            value = value == Self.indicatorCount ? 0 : value + 1
+            value = isFull ? 0 : value + 1
             DispatchQueue.main.async {
                 self.callback(self.value)
             }

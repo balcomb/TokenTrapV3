@@ -40,6 +40,7 @@ class GameLogic {
         }
         state.target = getTargetToken()
         state.gamePhase = .levelIntro
+        timer.setTimeInterval(with: state.level, Self.settings)
         sendState()
     }
 
