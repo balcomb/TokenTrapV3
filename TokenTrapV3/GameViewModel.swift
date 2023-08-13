@@ -127,7 +127,7 @@ extension GameViewModel {
 extension GameViewModel {
 
     enum Action {
-        case onAppear
+        case onAppear(_ settings: GameLogic.Settings)
         case selected(token: Token)
         case levelTransition
         case newGame
@@ -136,27 +136,17 @@ extension GameViewModel {
 
     func handle(_ action: Action) {
         switch action {
-        case .onAppear:
-            handleOnAppear()
+        case .onAppear(let settings):
+            gameLogic.handle(event: .gameDidAppear(settings))
         case .selected(let token):
             gameLogic.handle(event: .selectedToken(token))
         case .levelTransition:
             gameLogic.handle(event: .levelTransitionComplete)
         case .newGame:
-            startNewGame()
+            gameLogic.handle(event: .newGame)
         case .pause:
             gameLogic.handle(event: .pause)
         }
-    }
-
-    private func handleOnAppear() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(750)) {
-            self.startNewGame()
-        }
-    }
-
-    private func startNewGame() {
-        gameLogic.handle(event: .newGame)
     }
 }
 

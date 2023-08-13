@@ -9,6 +9,7 @@ import SwiftUI
 
 struct GameView: View {
     @StateObject private var viewModel = GameViewModel()
+    @Binding var settings: GameLogic.Settings
     let completion: () -> Void
 
     static var boardWidth: CGFloat {
@@ -30,7 +31,7 @@ struct GameView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
         .onAppear {
-            viewModel.handle(.onAppear)
+            viewModel.handle(.onAppear(settings))
         }
     }
 

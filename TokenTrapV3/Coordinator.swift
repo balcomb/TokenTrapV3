@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct Coordinator: View {
+    @State private var gameSettings = GameLogic.Settings()
     @State private var isShowingGame = false
     @State private var isShowingLearnHow = false
 
@@ -20,12 +21,12 @@ struct Coordinator: View {
             LearnHowView(isShowingLearnHow: $isShowingLearnHow)
         }
         .fullScreenCover(isPresented: $isShowingGame) {
-            GameView { isShowingGame = false }
+            GameView(settings: $gameSettings) { isShowingGame = false }
         }
     }
 
     private var menu: some View {
-        MenuView {
+        MenuView(gameSettings: $gameSettings) {
             handle(destination: $0)
         }
         .navigationBarHidden(true)

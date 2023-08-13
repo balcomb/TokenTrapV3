@@ -10,8 +10,11 @@ import Foundation
 extension GameLogic {
 
     class RowGenerator {
+        private let isExpertMode: Bool
 
-        private var isExpertMode: Bool { GameLogic.settings.skillLevel == .expert }
+        init(_ settings: Settings?) {
+            isExpertMode = settings?.skillLevel == .expert
+        }
 
         func getNextRow(for state: GameLogic.State) -> Row? {
             guard let target = state.target else {

@@ -87,6 +87,7 @@ extension GameLogic {
     }
 
     enum Event {
+        case gameDidAppear(_ settings: Settings?)
         case newGame
         case levelTransitionComplete
         case selectedToken(_ token: Token)

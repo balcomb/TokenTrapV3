@@ -10,9 +10,9 @@ import Combine
 
 class GameLogic {
 
-    static var settings = Settings()
+    private var settings: Settings?
     private lazy var state = State()
-    private lazy var rowGenerator = RowGenerator()
+    private lazy var rowGenerator = RowGenerator(settings)
 
     private lazy var timer = RowTimer { [weak self] value in
         self?.handleTimer(value)
@@ -32,6 +32,9 @@ class GameLogic {
     }
 
     private func startLevel() {
+        guard let settings = settings else {
+            return
+        }
         if state.score > 0 {
             state.level += 1
             state.rows = []
@@ -40,7 +43,7 @@ class GameLogic {
         }
         state.target = getTargetToken()
         state.gamePhase = .levelIntro
-        timer.setTimeInterval(with: state.level, Self.settings)
+        timer.setTimeInterval(with: state.level, settings)
         sendState()
     }
 
@@ -67,6 +70,8 @@ extension GameLogic {
 
     func handle(event: Event) {
         switch event {
+        case .gameDidAppear(let settings):
+            handleGameDidAppear(with: settings)
         case .selectedToken(let token):
             handleSelected(token)
         case .newGame:
@@ -75,6 +80,13 @@ extension GameLogic {
             handleLevelTransitionComplete()
         case .pause:
             timer.cancel()
+        }
+    }
+
+    private func handleGameDidAppear(with settings: GameLogic.Settings?) {
+        self.settings = settings
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(750)) {
+            self.handleNewGame()
         }
     }
 

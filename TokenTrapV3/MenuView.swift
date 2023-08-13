@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct MenuView: View {
+    @Binding var gameSettings: GameLogic.Settings
     let action: (Coordinator.Destination) -> Void
-    @State private var skillLevel = GameLogic.settings.skillLevel
     @State private var didAppear = false
     @State private var controlOpacity: Double = 0
 
@@ -59,7 +59,7 @@ struct MenuView: View {
 
     private var playButton: some View {
         makeButton("Play") {
-            startGame(isTrainingMode: false)
+            startGame()
         }
         .bigButton()
         .padding(.vertical)
@@ -74,7 +74,7 @@ struct MenuView: View {
     }
 
     private var skillLevelSelector: some View {
-        Picker("skillLevelSelector", selection: $skillLevel) {
+        Picker("skillLevelSelector", selection: $gameSettings.skillLevel) {
             Text("Basic").tag(GameLogic.Settings.SkillLevel.basic)
             Text("Expert").tag(GameLogic.Settings.SkillLevel.expert)
         }
@@ -92,9 +92,8 @@ struct MenuView: View {
         }
     }
 
-    private func startGame(isTrainingMode: Bool) {
-        GameLogic.settings.skillLevel = skillLevel
-        GameLogic.settings.isTrainingMode = isTrainingMode
+    private func startGame(isTrainingMode: Bool = false) {
+        gameSettings.isTrainingMode = isTrainingMode
         action(.game)
     }
 
