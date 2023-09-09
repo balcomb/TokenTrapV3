@@ -11,6 +11,7 @@ struct Token: GameLogicResource {
     let id = UUID()
     var attributes: Attributes
     var isWildcard = false
+    var shouldShowTrainingHint = false
 
     static var random: Token {
         Token(Color.allCases.randomElement()!, Icon.allCases.randomElement()!)
@@ -136,26 +137,41 @@ class TokenViewModel: GameViewModelObject {
     }
 
     func update(with state: GameLogic.State, _ stateRow: GameLogic.Row, _ index: Int) {
-        setStyle(
-            isTargetMatch: state.solvedRows.has(index, in: stateRow),
-            selection: state.selections.last
-        )
-        guard style == nil else {
+        setStyle(with: state, stateRow, index)
+        setIsDimmed(with: state, stateRow)
+    }
+
+    private func setIsDimmed(with state: GameLogic.State, _ stateRow: GameLogic.Row) {
+        guard style == nil || style == .orange else {
             return
         }
         isDimmed = state.solvedRows.contains { $0?.id == stateRow.id }
+        if isDimmed {
+            style = nil
+        }
     }
 
-    private func setStyle(isTargetMatch: Bool, selection: GameLogic.Selection?) {
+    private func shouldShowTrainingHint(for state: GameLogic.State) -> Bool {
+        state.nextTrainingHintToken != token && token.shouldShowTrainingHint
+    }
+
+    private func setStyle(with state: GameLogic.State, _ stateRow: GameLogic.Row, _ index: Int) {
+        let isTargetMatch = state.solvedRows.has(index, in: stateRow)
+        let selection = state.selections.last
+        let shouldShowTrainingHint = shouldShowTrainingHint(for: state)
+
+        var newStyle: Style?
         if isTargetMatch {
-            style = .gold
+            newStyle = .gold
+        } else if let selection = selection, selection.tokens.contains(token) {
+            newStyle = Style(selection.status)
+        } else if shouldShowTrainingHint {
+            newStyle = .orange
+        }
+        guard newStyle != style else {
             return
         }
-        guard let selection = selection, selection.tokens.contains(token) else {
-            style = nil
-            return
-        }
-        style = Style(selection.status)
+        style = newStyle
     }
 
     enum Style {
@@ -163,6 +179,7 @@ class TokenViewModel: GameViewModelObject {
         case green
         case red
         case gold
+        case orange
 
         init(_ selectionStatus: GameLogic.Selection.Status) {
             switch selectionStatus {

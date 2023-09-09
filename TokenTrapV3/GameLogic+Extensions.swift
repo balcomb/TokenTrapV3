@@ -79,6 +79,7 @@ extension GameLogic {
         var rows: [Row] = []
         var selections: [Selection] = []
         var solvedRows: [SolvedRow?] = []
+        var nextTrainingHintToken: Token?
         var target: Token?
         var level = 1
         var score = 0

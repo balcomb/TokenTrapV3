@@ -270,6 +270,14 @@ extension GameLogic {
             return
         }
         state.rows.insert(row, at: 0)
+        updateTrainingHintStatus(with: row)
+    }
+
+    private func updateTrainingHintStatus(with row: Row) {
+        guard settings?.isTrainingMode == true else {
+            return
+        }
+        state.nextTrainingHintToken = row.tokens.first { $0.shouldShowTrainingHint }
     }
 
     private func endGame() {

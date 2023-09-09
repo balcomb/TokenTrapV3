@@ -11,9 +11,11 @@ extension GameLogic {
 
     class RowGenerator {
         private let isExpertMode: Bool
+        private let isTrainingMode: Bool
 
         init(_ settings: Settings?) {
             isExpertMode = settings?.skillLevel == .expert
+            isTrainingMode = settings?.isTrainingMode == true
         }
 
         func getNextRow(for state: GameLogic.State) -> Row? {
@@ -33,10 +35,9 @@ extension GameLogic {
             if challengeType == .uniform {
                 return getUniformRow()
             }
-            let keySequence = getKeySequence(for: target, level)
-            var tokens = (0..<(GameLogic.gridSize - keySequence.count)).map { _ in Token.random }
-            let keySequenceIndex = Int.random(in: 0...tokens.endIndex)
-            tokens.insert(contentsOf: keySequence, at: keySequenceIndex)
+            var keySequence = getKeySequence(for: target, level)
+            setTrainingHint(in: &keySequence)
+            var tokens = getFullTokens(with: keySequence)
             addWildcards(to: &tokens, for: challengeType)
             return tokens
         }
@@ -49,6 +50,20 @@ extension GameLogic {
                 return initialPair.tokens
             }
             return getDisguisedSequence(for: initialPair, disguiseValues)
+        }
+
+        private func getFullTokens(with keySequence: [Token]) -> [Token] {
+            var tokens = (0..<(GameLogic.gridSize - keySequence.count)).map { _ in Token.random }
+            let keySequenceIndex = Int.random(in: 0...tokens.endIndex)
+            tokens.insert(contentsOf: keySequence, at: keySequenceIndex)
+            return tokens
+        }
+
+        private func setTrainingHint(in keySequence: inout [Token]) {
+            guard isTrainingMode, let index = keySequence.indices.randomElement() else {
+                return
+            }
+            keySequence[index].shouldShowTrainingHint = true
         }
 
         // MARK: Disguise Logic

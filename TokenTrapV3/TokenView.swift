@@ -59,6 +59,7 @@ struct TokenView: View {
         case .red: return .tokenBackgroundRed
         case .gold: return .tokenBackgroundGold
         case .gray: return .tokenBackgroundGray
+        case .orange: return .tokenBackgroundOrange
         default: return .tokenBackgroundDefault
         }
     }
