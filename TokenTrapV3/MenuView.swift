@@ -15,6 +15,7 @@ struct MenuView: View {
 
     private static var logoName: String { "Logo" }
     private static var logoWidth: CGFloat { UIImage(named: logoName)?.size.width ?? 0 }
+    static var trainingModeText: String { "Play in Training Mode" }
 
     private var openingAnimations: [SequencedAnimation] {
         [
@@ -87,7 +88,7 @@ struct MenuView: View {
     }
 
     private var trainingModeButton: some View {
-        makeSmallButton("Play in Training Mode") {
+        makeSmallButton(Self.trainingModeText) {
             startGame(isTrainingMode: true)
         }
     }

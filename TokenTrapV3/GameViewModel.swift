@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 class GameViewModel: ObservableObject {
@@ -17,23 +18,19 @@ class GameViewModel: ObservableObject {
     @Published var rowOpacity: CGFloat = 1
     private(set) lazy var timeProgress = Progress(count: GameLogic.RowTimer.indicatorCount)
     private(set) lazy var levelProgress = Progress(count: GameLogic.requiredRowsCleared)
-    private lazy var gameLogic = GameLogic()
-
-    init() {
-        monitorState()
-    }
+    private var gameLogic: GameLogic?
 }
 
 // MARK: State Handling
 
 extension GameViewModel {
 
-    private func monitorState() {
+    private func monitor(_ stateSequence: AsyncPublisher<AnyPublisher<GameLogic.State, Never>>) {
         Task { [weak self] in
             guard let self = self else {
                 return
             }
-            for await state in self.gameLogic.stateSequence {
+            for await state in stateSequence {
                 self.handle(state)
             }
         }
@@ -53,7 +50,7 @@ extension GameViewModel {
         case .levelIntro:
             auxiliaryView = .levelIntro
         case .gameOver:
-            handleGameOver()
+            handleGameOver(with: state)
         case .gameActive, .none:
             rowOpacity = 1
             auxiliaryView = nil
@@ -67,12 +64,12 @@ extension GameViewModel {
         }
     }
 
-    private func handleGameOver() {
+    private func handleGameOver(with state: GameLogic.State) {
         rowOpacity = 0.7
         timeProgress.status = .warning
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
             self.clearBoard {
-                self.showGameOver()
+                self.showGameOver(with: state)
             }
         }
     }
@@ -88,9 +85,11 @@ extension GameViewModel {
         }
     }
 
-    private func showGameOver() {
+    private func showGameOver(with state: GameLogic.State) {
+        let settings = gameLogic?.settings ?? GameLogic.Settings()
+        let content = GameOverContent(state.stats, settings)
         withAnimation {
-            auxiliaryView = .gameOver
+            auxiliaryView = .gameOver(content)
         }
     }
 
@@ -137,16 +136,23 @@ extension GameViewModel {
     func handle(_ action: Action) {
         switch action {
         case .onAppear(let settings):
-            gameLogic.handle(event: .gameDidAppear(settings))
+            handleOnAppear(settings)
         case .selected(let token):
-            gameLogic.handle(event: .selectedToken(token))
+            gameLogic?.handle(event: .selectedToken(token))
         case .levelTransition:
-            gameLogic.handle(event: .levelTransitionComplete)
+            gameLogic?.handle(event: .levelTransitionComplete)
         case .newGame:
-            gameLogic.handle(event: .newGame)
+            gameLogic?.handle(event: .newGame)
         case .pause:
-            gameLogic.handle(event: .pause)
+            gameLogic?.handle(event: .pause)
         }
+    }
+
+    private func handleOnAppear(_ settings: GameLogic.Settings) {
+        let gameLogic = GameLogic(settings)
+        self.gameLogic = gameLogic
+        monitor(gameLogic.stateSequence)
+        gameLogic.handle(event: .gameDidAppear)
     }
 }
 
@@ -157,7 +163,70 @@ extension GameViewModel {
     enum AuxiliaryView {
         case levelComplete
         case levelIntro
-        case gameOver
+        case gameOver(_ content: GameOverContent)
+    }
+
+    struct GameOverContent {
+        let headline: String
+        let detailTextItems: [String]
+
+        init(_ stats: GameLogic.Stats?, _ settings: GameLogic.Settings) {
+            guard !settings.isTrainingMode,
+                  let values = stats?.values,
+                  let isNewHighScore = stats?.isNewHighScore,
+                  let statsContent = StatsContent(values, settings.skillLevel)
+            else {
+                headline = Self.getHeadline()
+                detailTextItems = [Self.getNoStatsDetailText(for: settings.isTrainingMode)]
+                return
+            }
+            headline = Self.getHeadline(isNewHighScore)
+            detailTextItems = statsContent.textItems
+        }
+
+        private static func getHeadline(_ isNewHighScore: Bool = false) -> String {
+            isNewHighScore ? "New High Score" : "Game Over"
+        }
+
+        private static func getNoStatsDetailText(for isTrainingMode: Bool) -> String {
+            let components: [String]
+            if isTrainingMode {
+                components = [
+                    "Ready for an official game?",
+                    "",
+                    "Go back to the main menu",
+                    "to get out of training mode."
+                ]
+            } else {
+                components = [
+                    "Need Practice?",
+                    "",
+                    "Get in-game hints by tapping",
+                    "“\(MenuView.trainingModeText)”",
+                    "on the main menu."
+                ]
+            }
+            return components.joined(separator: "\n")
+        }
+
+        struct StatsContent {
+            private let subhead: String
+            private let averageScoreText: String
+            private let highScoreText: String
+
+            var textItems: [String] { [subhead, averageScoreText, highScoreText] }
+
+            init?(_ values: GameLogic.Stats.Values, _ skillLevel: GameLogic.Settings.SkillLevel) {
+                let shouldDisplayStats = values.numberOfGames > 1
+                guard shouldDisplayStats else {
+                    return nil
+                }
+                subhead = "\(skillLevel.rawValue) Level Stats".uppercased()
+                let formattedAverageScore = String(format: "%.1f", values.averageScore)
+                averageScoreText = "Average Score: \(formattedAverageScore)"
+                highScoreText = "High Score: \(values.highScore)"
+            }
+        }
     }
 
     class Row: GameViewModelObject {

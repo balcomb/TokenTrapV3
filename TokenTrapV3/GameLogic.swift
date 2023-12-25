@@ -10,9 +10,14 @@ import Combine
 
 class GameLogic {
 
-    private var settings: Settings?
+    let settings: Settings
     private lazy var state = State()
     private lazy var rowGenerator = RowGenerator(settings)
+    private lazy var statsStorage = StatsStorage(settings)
+
+    private var gameIsOver: Bool {
+        state.gamePhase == .gameOver
+    }
 
     private lazy var timer = RowTimer { [weak self] value in
         self?.handleTimer(value)
@@ -31,10 +36,11 @@ class GameLogic {
         stateSubject.send(state)
     }
 
+    init(_ settings: Settings) {
+        self.settings = settings
+    }
+
     private func startLevel() {
-        guard let settings = settings else {
-            return
-        }
         if state.score > 0 {
             state.level += 1
             state.rows = []
@@ -70,8 +76,8 @@ extension GameLogic {
 
     func handle(event: Event) {
         switch event {
-        case .gameDidAppear(let settings):
-            handleGameDidAppear(with: settings)
+        case .gameDidAppear:
+            handleGameDidAppear()
         case .selectedToken(let token):
             handleSelected(token)
         case .newGame:
@@ -83,8 +89,7 @@ extension GameLogic {
         }
     }
 
-    private func handleGameDidAppear(with settings: GameLogic.Settings?) {
-        self.settings = settings
+    private func handleGameDidAppear() {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(750)) {
             self.handleNewGame()
         }
@@ -101,7 +106,7 @@ extension GameLogic {
     }
 
     private func handleLevelTransitionComplete() {
-        guard state.gamePhase == .levelIntro else {
+        guard case .levelIntro = state.gamePhase  else {
             startLevel()
             return
         }
@@ -116,7 +121,7 @@ extension GameLogic {
 extension GameLogic {
 
     private func canSelect(_ token: Token) -> Bool {
-        guard !(levelIsComplete || state.gamePhase == .gameOver) else {
+        guard !(levelIsComplete || gameIsOver) else {
             return false
         }
         let tokenIsInSolvedRow = isSolved(row: state.rows.first { $0.tokens.contains(token) })
@@ -274,7 +279,7 @@ extension GameLogic {
     }
 
     private func updateTrainingHintStatus(with row: Row) {
-        guard settings?.isTrainingMode == true else {
+        guard settings.isTrainingMode else {
             return
         }
         state.nextTrainingHintToken = row.tokens.first { $0.shouldShowTrainingHint }
@@ -282,6 +287,7 @@ extension GameLogic {
 
     private func endGame() {
         state.gamePhase = .gameOver
+        state.stats = statsStorage.getUpdatedStats(with: state)
         timer.cancel()
     }
 

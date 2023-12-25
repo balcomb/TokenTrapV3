@@ -28,6 +28,7 @@
 		FF2D53B629214EF8005824DD /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF2D53B529214EF8005824DD /* Launch Screen.storyboard */; };
 		FF2D53B8292157DF005824DD /* GameLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2D53B7292157DF005824DD /* GameLogic.swift */; };
 		FF76E4D02A0814E4007EB939 /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF76E4CF2A0814E4007EB939 /* View+Extensions.swift */; };
+		FFD46B522B38A80400F26944 /* GameLogic+StatsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD46B512B38A80400F26944 /* GameLogic+StatsStorage.swift */; };
 		FFD7FC6129A4287A0085E177 /* GameLogic+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7FC6029A4287A0085E177 /* GameLogic+Extensions.swift */; };
 /* End PBXBuildFile section */
 
@@ -74,6 +75,7 @@
 		FF2D53B529214EF8005824DD /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		FF2D53B7292157DF005824DD /* GameLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLogic.swift; sourceTree = "<group>"; };
 		FF76E4CF2A0814E4007EB939 /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
+		FFD46B512B38A80400F26944 /* GameLogic+StatsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GameLogic+StatsStorage.swift"; sourceTree = "<group>"; };
 		FFD7FC6029A4287A0085E177 /* GameLogic+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GameLogic+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -132,6 +134,7 @@
 				FF2D53B7292157DF005824DD /* GameLogic.swift */,
 				FFD7FC6029A4287A0085E177 /* GameLogic+Extensions.swift */,
 				FF25DE312A3F92C5008C5555 /* GameLogic+RowGenerator.swift */,
+				FFD46B512B38A80400F26944 /* GameLogic+StatsStorage.swift */,
 				B532CFB028CD0C3A001B21AF /* GameViewModel.swift */,
 				B5D273C528A0260E00B7119A /* GameView.swift */,
 				B532CFB628E8E38F001B21AF /* GameView+Extensions.swift */,
@@ -310,6 +313,7 @@
 				B5D273C428A025E500B7119A /* Color+Extensions.swift in Sources */,
 				B5D273C22896E29400B7119A /* StyledPicker.swift in Sources */,
 				B532CFB528D79E84001B21AF /* SequencedAnimation.swift in Sources */,
+				FFD46B522B38A80400F26944 /* GameLogic+StatsStorage.swift in Sources */,
 				B5D273972896D55900B7119A /* MenuView.swift in Sources */,
 				B5D273C828A0263500B7119A /* LearnHowView.swift in Sources */,
 				B5D273952896D55900B7119A /* TokenTrapV3App.swift in Sources */,

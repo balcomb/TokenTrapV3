@@ -12,6 +12,7 @@ extension GameView {
     struct GameText: View {
         private let content: String
         private let style: Style
+        private let alignment: TextAlignment
 
         private var color: Color {
             switch style {
@@ -27,15 +28,17 @@ extension GameView {
             }
         }
 
-        init(_ content: String, style: Style = .primary) {
+        init(_ content: String, style: Style = .primary, alignment: TextAlignment = .leading) {
             self.content = content
             self.style = style
+            self.alignment = alignment
         }
 
         var body: some View {
             Text(content)
                 .font(font)
                 .fontWeight(.heavy)
+                .multilineTextAlignment(alignment)
                 .foregroundColor(color)
                 .id(content) // hack for getting animations right on iOS 15
         }
@@ -185,7 +188,13 @@ extension GameView {
         let type: GameViewModel.AuxiliaryView?
         let callback: () -> Void
 
-        private var isLevelIntro: Bool { type == .levelIntro }
+        private var isLevelIntro: Bool {
+            if case .levelIntro = type {
+                return true
+            }
+            return false
+        }
+
         private var messages: [String] { ["Ready", "Set", "GO!"] }
 
         private var mainText: String {
@@ -225,7 +234,7 @@ extension GameView {
                 Spacer()
                 textView
                 Spacer()
-                if type == .levelIntro {
+                if isLevelIntro {
                     skipButton
                 }
             }
@@ -237,9 +246,8 @@ extension GameView {
 
         private var textView: some View {
             VStack {
-                GameText(mainText)
-                    .multilineTextAlignment(.center)
-                GameText("\(message)", style: .primaryHot)
+                GameText(mainText, alignment: .center)
+                GameText("\(message)", style: .primaryHot, alignment: .center)
             }
         }
 

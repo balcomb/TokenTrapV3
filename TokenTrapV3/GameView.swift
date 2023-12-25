@@ -19,6 +19,7 @@ struct GameView: View {
     static var tokenSpacing: CGFloat { 1 }
     static var tokenSize: CGFloat { (gridWidth / CGFloat(GameLogic.gridSize)) - tokenSpacing }
     private var topControlSize: CGFloat { 32 }
+    private var gameOverStackSpacing: CGFloat { 20 }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -109,20 +110,6 @@ struct GameView: View {
         .frame(width: Self.gridWidth, height: Self.gridWidth)
     }
 
-    private var gameOverView: some View {
-        VStack {
-            Spacer()
-            GameText("Game Over", style: .primaryHot)
-            Spacer()
-            Button(
-                action: { viewModel.handle(.newGame) },
-                label: { buttonText("Play Again").padding(.horizontal) }
-            )
-            .bigButton()
-            Spacer()
-        }
-    }
-
     private var scoreboard: some View {
         VStack {
             ScoreboardView(leadingText: "LEVEL", trailingText: "SCORE", style: .detail)
@@ -136,8 +123,8 @@ struct GameView: View {
     private var auxiliaryView: some View {
         Group {
             switch viewModel.auxiliaryView {
-            case .gameOver:
-                gameOverView
+            case .gameOver(let content):
+                getGameOverView(with: content)
             case .levelComplete:
                 levelTransitionView
             case .levelIntro:
@@ -151,6 +138,40 @@ struct GameView: View {
     private var levelTransitionView: some View {
         LevelTransitionView(level: viewModel.level, type: viewModel.auxiliaryView) {
             viewModel.handle(.levelTransition)
+        }
+    }
+
+    private var playAgainButton: some View {
+        Button(
+            action: { viewModel.handle(.newGame) },
+            label: { buttonText("Play Again").padding(.horizontal) }
+        )
+        .bigButton()
+    }
+
+    private func getGameOverView(with content: GameViewModel.GameOverContent) -> some View {
+        VStack(spacing: gameOverStackSpacing) {
+            Spacer()
+            Spacer()
+            GameText(content.headline, style: .primaryHot, alignment: .center)
+            if !content.detailTextItems.isEmpty {
+                getDetailTextStack(with: content.detailTextItems)
+            }
+            Spacer()
+            playAgainButton
+            Spacer()
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+    }
+
+    private func getDetailTextStack(
+        with content: [String]
+    ) -> some View {
+        VStack(spacing: gameOverStackSpacing / 2) {
+            ForEach(content, id: \.self) { item in
+                GameText(item, style: .detail, alignment: .center)
+            }
         }
     }
 

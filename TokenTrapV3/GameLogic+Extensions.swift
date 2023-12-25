@@ -20,7 +20,7 @@ extension GameLogic {
         var skillLevel = SkillLevel.basic
         var isTrainingMode = false
 
-        enum SkillLevel {
+        enum SkillLevel: String {
             case basic, expert
         }
     }
@@ -76,6 +76,7 @@ extension GameLogic {
     }
 
     struct State {
+        let gameId = UUID()
         var rows: [Row] = []
         var selections: [Selection] = []
         var solvedRows: [SolvedRow?] = []
@@ -85,10 +86,22 @@ extension GameLogic {
         var score = 0
         var timerValue = 0
         var gamePhase: GamePhase?
+        var stats: Stats?
+    }
+
+    struct Stats {
+        let values: Values
+        let isNewHighScore: Bool
+
+        struct Values: Codable {
+            let highScore: Int
+            let averageScore: Double
+            let numberOfGames: Int
+        }
     }
 
     enum Event {
-        case gameDidAppear(_ settings: Settings?)
+        case gameDidAppear
         case newGame
         case levelTransitionComplete
         case selectedToken(_ token: Token)
