@@ -40,7 +40,7 @@ extension LearnHowView {
         Text(
             Strings.navTitle
         )
-        .font(.subheadline.weight(.heavy))
+        .font(.title2.weight(.heavy))
         .padding(.leading)
         .foregroundColor(.white)
     }
@@ -49,7 +49,7 @@ extension LearnHowView {
         Button {
             isShowingLearnHow = false
         } label: {
-            Image(systemName: "xmark").padding()
+            closeIcon(size: 28)
         }
         .tint(.white)
     }

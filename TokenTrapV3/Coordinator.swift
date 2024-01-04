@@ -21,7 +21,7 @@ struct Coordinator: View {
             LearnHowView(isShowingLearnHow: $isShowingLearnHow)
         }
         .fullScreenCover(isPresented: $isShowingGame) {
-            GameView(settings: $gameSettings) { isShowingGame = false }
+            GameView(settings: $gameSettings, isShowingGame: $isShowingGame)
         }
     }
 

@@ -19,6 +19,14 @@ extension View {
     func buttonText(_ text: String) -> some View {
         Text(text).fontWeight(.heavy)
     }
+
+    func closeIcon(size: CGFloat) -> some View {
+        Image(systemName: "xmark.circle")
+            .resizable()
+            .tint(.white)
+            .frame(width: size, height: size)
+            .padding()
+    }
 }
 
 struct BigButton: ViewModifier {

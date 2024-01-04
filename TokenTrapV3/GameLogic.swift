@@ -84,8 +84,10 @@ extension GameLogic {
             handleNewGame()
         case .levelTransitionComplete:
             handleLevelTransitionComplete()
-        case .pause:
-            timer.cancel()
+        case .closeSelected, .closeConfirmed:
+            handleCloseEvent(event)
+        case .resume:
+            handleResume()
         }
     }
 
@@ -112,6 +114,22 @@ extension GameLogic {
         }
         state.gamePhase = .gameActive
         startRows()
+        sendState()
+    }
+
+    private func handleCloseEvent(_ event: Event) {
+        if case .closeSelected = event, !gameIsOver {
+            timer.cancel()
+            state.gamePhase = .gamePaused
+        } else {
+            state.gamePhase = .gameDismissed
+        }
+        sendState()
+    }
+
+    private func handleResume() {
+        timer.resume()
+        state.gamePhase = .gameActive
         sendState()
     }
 }

@@ -10,7 +10,7 @@ import SwiftUI
 struct GameView: View {
     @StateObject private var viewModel = GameViewModel()
     @Binding var settings: GameLogic.Settings
-    let completion: () -> Void
+    @Binding var isShowingGame: Bool
 
     static var boardWidth: CGFloat {
         UIScreen.main.bounds.size.width * (UIDevice.current.userInterfaceIdiom == .pad ? 0.666 : 1)
@@ -32,7 +32,7 @@ struct GameView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
         .onAppear {
-            viewModel.handle(.onAppear(settings))
+            viewModel.handle(.onAppear(settings, $isShowingGame))
         }
     }
 
@@ -40,7 +40,7 @@ struct GameView: View {
         VStack(spacing: 0) {
             Spacer()
             HStack {
-                pauseButton
+                closeButton
                 Spacer()
                 targetIndicator
             }
@@ -48,15 +48,24 @@ struct GameView: View {
         .frame(width: Self.boardWidth)
     }
 
-    private var pauseButton: some View {
+    private var closeButton: some View {
         Button {
-            handlePauseButton()
+            viewModel.handle(.closeSelected)
         } label: {
-            Image(systemName: "pause.circle")
-                .resizable()
-                .tint(.white)
-                .frame(width: topControlSize, height: topControlSize)
-                .padding()
+            closeIcon(size: topControlSize)
+        }
+        .disabled(viewModel.closeButtonIsDisabled)
+        .confirmationDialog(
+            "Game Paused",
+            isPresented: $viewModel.isShowingCloseConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Continue Game", role: .cancel) {
+                viewModel.handle(.resume)
+            }
+            Button("End Game", role: .destructive) {
+                viewModel.handle(.closeConfirmed)
+            }
         }
     }
 
@@ -89,7 +98,7 @@ struct GameView: View {
     private var boardContainer: some View {
         ZStack {
             GridView()
-            rows.opacity(viewModel.rowOpacity)
+            rows.opacity(viewModel.rowVisibility.opacity)
             auxiliaryView
         }
         .frame(width: Self.boardWidth, height: Self.boardWidth)
@@ -173,10 +182,5 @@ struct GameView: View {
                 GameText(item, style: .detail, alignment: .center)
             }
         }
-    }
-
-    private func handlePauseButton() {
-        viewModel.handle(.pause)
-        completion()
     }
 }

@@ -15,10 +15,19 @@ class GameViewModel: ObservableObject {
     @Published var score = 0
     @Published var targetToken: TokenViewModel?
     @Published var auxiliaryView: AuxiliaryView?
-    @Published var rowOpacity: CGFloat = 1
+    @Published var rowVisibility = RowVisibility.active
+    @Published var closeButtonIsDisabled = true
+    @Published var isShowingCloseConfirmation = false
+
+    @Binding private var isShowingGame: Bool
+
     private(set) lazy var timeProgress = Progress(count: GameLogic.RowTimer.indicatorCount)
     private(set) lazy var levelProgress = Progress(count: GameLogic.requiredRowsCleared)
     private var gameLogic: GameLogic?
+
+    init() {
+        _isShowingGame = .constant(true)
+    }
 }
 
 // MARK: State Handling
@@ -43,6 +52,7 @@ extension GameViewModel {
         score = state.score
         timeProgress.status = .active(value: state.timerValue)
         levelProgress.status = .active(value: state.solvedRows.count)
+        closeButtonIsDisabled = !(state.gamePhase == .gameOver || state.gamePhase == .gameActive)
 
         switch state.gamePhase {
         case .levelComplete:
@@ -51,10 +61,24 @@ extension GameViewModel {
             auxiliaryView = .levelIntro
         case .gameOver:
             handleGameOver(with: state)
+        case .gamePaused:
+            handleGamePaused()
+        case .gameDismissed:
+            isShowingGame = false
         case .gameActive, .none:
-            rowOpacity = 1
-            auxiliaryView = nil
+            handleGameActive()
         }
+    }
+
+    private func handleGameActive() {
+        isShowingCloseConfirmation = false
+        rowVisibility = .active
+        auxiliaryView = nil
+    }
+
+    private func handleGamePaused() {
+        isShowingCloseConfirmation = true
+        rowVisibility = .hidden
     }
 
     private func handleLevelComplete() {
@@ -65,7 +89,7 @@ extension GameViewModel {
     }
 
     private func handleGameOver(with state: GameLogic.State) {
-        rowOpacity = 0.7
+        rowVisibility = .dimmed
         timeProgress.status = .warning
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
             self.clearBoard {
@@ -126,39 +150,60 @@ extension GameViewModel {
 extension GameViewModel {
 
     enum Action {
-        case onAppear(_ settings: GameLogic.Settings)
+        case onAppear(_ settings: GameLogic.Settings, _ isShowingGame: Binding<Bool>)
         case selected(token: Token)
         case levelTransition
         case newGame
-        case pause
+        case closeSelected
+        case closeConfirmed
+        case resume
     }
 
     func handle(_ action: Action) {
         switch action {
-        case .onAppear(let settings):
-            handleOnAppear(settings)
+        case .onAppear(let settings, let isShowingGame):
+            handleOnAppear(settings, isShowingGame)
         case .selected(let token):
             gameLogic?.handle(event: .selectedToken(token))
         case .levelTransition:
             gameLogic?.handle(event: .levelTransitionComplete)
         case .newGame:
             gameLogic?.handle(event: .newGame)
-        case .pause:
-            gameLogic?.handle(event: .pause)
+        case .closeSelected:
+            gameLogic?.handle(event: .closeSelected)
+        case .closeConfirmed:
+            gameLogic?.handle(event: .closeConfirmed)
+        case .resume:
+            gameLogic?.handle(event: .resume)
         }
     }
 
-    private func handleOnAppear(_ settings: GameLogic.Settings) {
+    private func handleOnAppear(_ settings: GameLogic.Settings, _ isShowingGame: Binding<Bool>) {
         let gameLogic = GameLogic(settings)
         self.gameLogic = gameLogic
         monitor(gameLogic.stateSequence)
         gameLogic.handle(event: .gameDidAppear)
+        _isShowingGame = isShowingGame
     }
 }
 
 // MARK: Objects
 
 extension GameViewModel {
+
+    enum RowVisibility {
+        case active
+        case dimmed
+        case hidden
+
+        var opacity: CGFloat {
+            switch self {
+            case .active: return 1
+            case .dimmed: return 0.7
+            case .hidden: return 0
+            }
+        }
+    }
 
     enum AuxiliaryView {
         case levelComplete

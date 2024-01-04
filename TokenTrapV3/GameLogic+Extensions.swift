@@ -50,21 +50,29 @@ extension GameLogic {
         }
 
         func start() {
+            value = 0
+            setTimer()
+        }
+
+        func cancel() {
+            timer?.invalidate()
+        }
+
+        func resume() {
+            setTimer()
+        }
+
+        private func setTimer() {
             guard let timeInterval = timeInterval else {
                 return
             }
             timer?.invalidate()
-            value = 0
             timer = .scheduledTimer(
                 withTimeInterval: timeInterval,
                 repeats: true
             ) { [weak self] _ in
                 self?.handleTimer()
             }
-        }
-
-        func cancel() {
-            timer?.invalidate()
         }
 
         private func handleTimer() {
@@ -105,7 +113,9 @@ extension GameLogic {
         case newGame
         case levelTransitionComplete
         case selectedToken(_ token: Token)
-        case pause
+        case closeSelected
+        case closeConfirmed
+        case resume
     }
 
     enum GamePhase {
@@ -113,6 +123,8 @@ extension GameLogic {
         case levelIntro
         case gameActive
         case gameOver
+        case gamePaused
+        case gameDismissed
     }
 
     enum AdjacencyResult {
