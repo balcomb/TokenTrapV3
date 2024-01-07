@@ -10,7 +10,9 @@ import Combine
 
 class GameLogic {
 
-    let settings: Settings
+    typealias StateSequence = AsyncPublisher<AnyPublisher<State, Never>>
+
+    private let settings: Settings
     private lazy var state = State()
     private lazy var rowGenerator = RowGenerator(settings)
     private lazy var statsStorage = StatsStorage(settings)
@@ -24,9 +26,7 @@ class GameLogic {
     }
 
     private lazy var stateSubject = PassthroughSubject<State, Never>()
-    var stateSequence: AsyncPublisher<AnyPublisher<State, Never>> {
-        AsyncPublisher(stateSubject.eraseToAnyPublisher())
-    }
+    var stateSequence: StateSequence { stateSubject.eraseToAnyPublisher().values }
 
     private var levelIsComplete: Bool {
         state.solvedRows.count == Self.requiredRowsCleared
@@ -70,23 +70,23 @@ extension GameLogic {
     static var requiredRowsCleared: Int { 10 }
 }
 
-// MARK: View Event Handling
+// MARK: Event Handling
 
 extension GameLogic {
 
-    func handle(event: Event) {
+    func handle(_ event: GameViewModel.Event) {
         switch event {
-        case .gameDidAppear:
+        case .gameAppeared:
             handleGameDidAppear()
-        case .selectedToken(let token):
+        case .tokenSelected(let token):
             handleSelected(token)
         case .newGame:
             handleNewGame()
-        case .levelTransitionComplete:
+        case .levelTransition:
             handleLevelTransitionComplete()
         case .closeSelected, .closeConfirmed:
             handleCloseEvent(event)
-        case .resume:
+        case .gameResumed:
             handleResume()
         }
     }
@@ -117,7 +117,7 @@ extension GameLogic {
         sendState()
     }
 
-    private func handleCloseEvent(_ event: Event) {
+    private func handleCloseEvent(_ event: GameViewModel.Event) {
         if case .closeSelected = event, !gameIsOver {
             timer.cancel()
             state.gamePhase = .gamePaused

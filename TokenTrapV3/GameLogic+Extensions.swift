@@ -16,7 +16,7 @@ extension GameLogicResource {
 
 extension GameLogic {
 
-    struct Settings: Equatable {
+    struct Settings {
         var skillLevel = SkillLevel.basic
         var isTrainingMode = false
 
@@ -100,22 +100,13 @@ extension GameLogic {
     struct Stats {
         let values: Values
         let isNewHighScore: Bool
+        let settings: GameLogic.Settings
 
         struct Values: Codable {
             let highScore: Int
             let averageScore: Double
             let numberOfGames: Int
         }
-    }
-
-    enum Event {
-        case gameDidAppear
-        case newGame
-        case levelTransitionComplete
-        case selectedToken(_ token: Token)
-        case closeSelected
-        case closeConfirmed
-        case resume
     }
 
     enum GamePhase {

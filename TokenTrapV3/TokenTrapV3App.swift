@@ -11,7 +11,7 @@ import SwiftUI
 struct TokenTrapV3App: App {
     var body: some Scene {
         WindowGroup {
-            Coordinator()
+            CoordinatorView()
         }
     }
 }

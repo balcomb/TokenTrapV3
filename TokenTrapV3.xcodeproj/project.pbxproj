@@ -18,7 +18,7 @@
 		B5D273A62896D55C00B7119A /* TokenTrapV3Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273A52896D55C00B7119A /* TokenTrapV3Tests.swift */; };
 		B5D273B02896D55C00B7119A /* TokenTrapV3UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273AF2896D55C00B7119A /* TokenTrapV3UITests.swift */; };
 		B5D273B22896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273B12896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift */; };
-		B5D273BF2896D59200B7119A /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273BE2896D59200B7119A /* Coordinator.swift */; };
+		B5D273BF2896D59200B7119A /* CoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273BE2896D59200B7119A /* CoordinatorView.swift */; };
 		B5D273C22896E29400B7119A /* StyledPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C12896E29400B7119A /* StyledPicker.swift */; };
 		B5D273C428A025E500B7119A /* Color+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C328A025E500B7119A /* Color+Extensions.swift */; };
 		B5D273C628A0260E00B7119A /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D273C528A0260E00B7119A /* GameView.swift */; };
@@ -64,7 +64,7 @@
 		B5D273AB2896D55C00B7119A /* TokenTrapV3UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TokenTrapV3UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5D273AF2896D55C00B7119A /* TokenTrapV3UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTrapV3UITests.swift; sourceTree = "<group>"; };
 		B5D273B12896D55C00B7119A /* TokenTrapV3UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTrapV3UITestsLaunchTests.swift; sourceTree = "<group>"; };
-		B5D273BE2896D59200B7119A /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		B5D273BE2896D59200B7119A /* CoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorView.swift; sourceTree = "<group>"; };
 		B5D273C02896D75900B7119A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B5D273C12896E29400B7119A /* StyledPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyledPicker.swift; sourceTree = "<group>"; };
 		B5D273C328A025E500B7119A /* Color+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extensions.swift"; sourceTree = "<group>"; };
@@ -129,7 +129,7 @@
 			children = (
 				B5D273C02896D75900B7119A /* Info.plist */,
 				B5D273942896D55900B7119A /* TokenTrapV3App.swift */,
-				B5D273BE2896D59200B7119A /* Coordinator.swift */,
+				B5D273BE2896D59200B7119A /* CoordinatorView.swift */,
 				B5D273962896D55900B7119A /* MenuView.swift */,
 				FF2D53B7292157DF005824DD /* GameLogic.swift */,
 				FFD7FC6029A4287A0085E177 /* GameLogic+Extensions.swift */,
@@ -324,7 +324,7 @@
 				B5D273CA28A7F74500B7119A /* TokenView.swift in Sources */,
 				FFD7FC6129A4287A0085E177 /* GameLogic+Extensions.swift in Sources */,
 				FF76E4D02A0814E4007EB939 /* View+Extensions.swift in Sources */,
-				B5D273BF2896D59200B7119A /* Coordinator.swift in Sources */,
+				B5D273BF2896D59200B7119A /* CoordinatorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

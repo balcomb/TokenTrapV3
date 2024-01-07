@@ -25,12 +25,13 @@ extension GameLogic {
         func getUpdatedStats(with state: State) -> Stats {
             let storedValues = getStoredValues()
             guard canUpdateStoredValues(for: state) else {
-                return Stats(values: storedValues, isNewHighScore: false)
+                return Stats(values: storedValues, isNewHighScore: false, settings: settings)
             }
             lastGameId = state.gameId
             let stats = Stats(
                 values: getUpdatedValues(from: storedValues, state.score),
-                isNewHighScore: state.score > storedValues.highScore
+                isNewHighScore: state.score > storedValues.highScore,
+                settings: settings
             )
             store(stats.values)
             return stats

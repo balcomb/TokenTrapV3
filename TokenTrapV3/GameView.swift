@@ -8,9 +8,7 @@
 import SwiftUI
 
 struct GameView: View {
-    @StateObject private var viewModel = GameViewModel()
-    @Binding var settings: GameLogic.Settings
-    @Binding var isShowingGame: Bool
+    @StateObject private var viewModel: GameViewModel
 
     static var boardWidth: CGFloat {
         UIScreen.main.bounds.size.width * (UIDevice.current.userInterfaceIdiom == .pad ? 0.666 : 1)
@@ -20,6 +18,10 @@ struct GameView: View {
     static var tokenSize: CGFloat { (gridWidth / CGFloat(GameLogic.gridSize)) - tokenSpacing }
     private var topControlSize: CGFloat { 32 }
     private var gameOverStackSpacing: CGFloat { 20 }
+
+    init(_ settings: GameLogic.Settings, _ isShowingGame: Binding<Bool>) {
+        _viewModel = StateObject(wrappedValue: GameViewModel(settings, isShowingGame))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -32,7 +34,7 @@ struct GameView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
         .onAppear {
-            viewModel.handle(.onAppear(settings, $isShowingGame))
+            viewModel.handle(.gameAppeared)
         }
     }
 
@@ -61,7 +63,7 @@ struct GameView: View {
             titleVisibility: .visible
         ) {
             Button("Continue Game", role: .cancel) {
-                viewModel.handle(.resume)
+                viewModel.handle(.gameResumed)
             }
             Button("End Game", role: .destructive) {
                 viewModel.handle(.closeConfirmed)
@@ -111,8 +113,8 @@ struct GameView: View {
                 Spacer()
             }
             ForEach(viewModel.rows) { row in
-                RowView(row: row) {
-                    viewModel.handle(.selected(token: $0))
+                RowView(row: row) { token in
+                    viewModel.handle(.tokenSelected(token))
                 }
             }
         }
