@@ -1,5 +1,5 @@
 //
-//  Coordinator.swift
+//  CoordinatorView.swift
 //  TokenTrapV3
 //
 //  Created by Ben Balcomb on 7/31/22.
