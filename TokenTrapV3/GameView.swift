@@ -155,9 +155,21 @@ struct GameView: View {
     private var playAgainButton: some View {
         Button(
             action: { viewModel.handle(.newGame) },
-            label: { buttonText("Play Again").padding(.horizontal) }
+            label: {
+                getPlayAgainArrowText(arrowCharacter: "\u{25B6}")
+                buttonText(" Play Again ")
+                getPlayAgainArrowText(arrowCharacter: "\u{25C0}")
+            }
         )
         .bigButton()
+        .controlSize(.large)
+    }
+
+    private func getPlayAgainArrowText(arrowCharacter: String) -> some View {
+        buttonText(
+            Array(repeating: arrowCharacter, count: 3).joined()
+        )
+        .foregroundColor(.logoBlue)
     }
 
     private func getGameOverView(with content: GameViewModel.GameOverContent) -> some View {
