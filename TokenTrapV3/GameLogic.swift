@@ -332,9 +332,16 @@ extension GameLogic {
         if levelIsComplete {
             state.gamePhase = .levelComplete
         } else if state.rows.isEmpty {
-            startRows()
+            startRowsDelayed()
         }
         sendState()
+    }
+
+    private func startRowsDelayed() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(333)) {
+            self.startRows()
+            self.sendState()
+        }
     }
 
     private func getScoreForRow(at index: Int) -> Int {
