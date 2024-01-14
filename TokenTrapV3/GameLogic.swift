@@ -227,7 +227,7 @@ extension GameLogic {
         else {
             return
         }
-        scheduleRemoval(rowId: row.id)
+        scheduleSolvedRowRemoval(for: row.id)
         guard levelIsComplete || state.rows.count == 1 else {
             return
         }
@@ -317,17 +317,17 @@ extension GameLogic {
         }
     }
 
-    private func scheduleRemoval(rowId: UUID) {
+    private func scheduleSolvedRowRemoval(for rowId: UUID) {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(666)) {
-            self.removeRow(with: rowId)
+            self.removeSolvedRow(with: rowId)
         }
     }
 
-    private func removeRow(with id: UUID) {
+    private func removeSolvedRow(with id: UUID) {
         guard let index = state.rows.firstIndex(where: { $0.id == id }) else {
             return
         }
-        state.score += getScoreForRow(at: index)
+        updateScore(for: index)
         state.rows.remove(at: index)
         if levelIsComplete {
             state.gamePhase = .levelComplete
@@ -343,13 +343,31 @@ extension GameLogic {
             self.sendState()
         }
     }
+}
 
-    private func getScoreForRow(at index: Int) -> Int {
-        switch state.rows[index].challengeType {
-        case .uniform: return 10
-        case .wildcardRow: return 20
-        default: return 5
+// MARK: Score Management
+
+extension GameLogic {
+
+    private func updateScore(for rowIndex: Int) {
+        let scoreChange = ScoreChange(challengeType: state.rows[rowIndex].challengeType)
+        state.scoreChanges.append(scoreChange)
+        scheduleScoreChangeRemoval(scoreChange)
+        state.score += scoreChange.value
+    }
+
+    private func scheduleScoreChangeRemoval(_ scoreChange: ScoreChange) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+            self?.removeExpiredScoreChange(scoreChange)
         }
+    }
+
+    private func removeExpiredScoreChange(_ scoreChange: ScoreChange) {
+        guard state.scoreChanges.contains(scoreChange) else {
+            return
+        }
+        state.scoreChanges.removeAll { $0.id == scoreChange.id }
+        sendState()
     }
 }
 

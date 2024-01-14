@@ -165,18 +165,44 @@ extension GameView {
     }
 
     struct ScoreboardView: View {
-        let leadingText: String
-        let trailingText: String
-        var style = GameText.Style.primary
+        @ObservedObject var viewModel: GameViewModel.Scoreboard
 
         var body: some View {
-            HStack {
-                GameText(leadingText, style: style)
+            VStack {
+                HStack {
+                    getHeaderText("LEVEL")
+                    Spacer()
+                    getHeaderText("SCORE")
+                }
+                .opacity(0.7)
+                HStack {
+                    getValueText("\(viewModel.level)")
+                    spacerWithOverlay
+                    getValueText("\(viewModel.score)")
+                }
                 Spacer()
-                GameText(trailingText, style: style)
             }
-            .opacity(style == .detail ? 0.7 : 1)
-            .padding(.horizontal)
+            .frame(width: GameView.boardWidth * 0.9)
+            .padding(.top, 8)
+        }
+
+        private var spacerWithOverlay: some View {
+            Spacer().overlay(alignment: .trailing) {
+                VStack {
+                    ForEach(viewModel.scoreChanges) { scoreChange in
+                        GameText(scoreChange.text, style: .primaryHot)
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+
+        private func getHeaderText(_ text: String) -> some View {
+            GameText(text, style: .detail)
+        }
+
+        private func getValueText(_ text: String) -> some View {
+            GameText(text, style: .primary)
         }
     }
 

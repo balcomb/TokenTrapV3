@@ -92,9 +92,23 @@ extension GameLogic {
         var target: Token?
         var level = 1
         var score = 0
+        var scoreChanges: [ScoreChange] = []
         var timerValue = 0
         var gamePhase: GamePhase?
         var stats: Stats?
+    }
+
+    struct ScoreChange: Equatable, Identifiable {
+        let id = UUID()
+        let value: Int
+
+        init(challengeType: Row.ChallengeType?) {
+            switch challengeType {
+            case .uniform: value = 10
+            case .wildcardRow: value = 20
+            default: value = 5
+            }
+        }
     }
 
     struct Stats {

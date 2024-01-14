@@ -29,7 +29,7 @@ struct GameView: View {
             timeProgressView
             boardContainer
             levelProgressView
-            scoreboard
+            ScoreboardView(viewModel: viewModel.scoreboard)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
@@ -121,16 +121,6 @@ struct GameView: View {
         .frame(width: Self.gridWidth, height: Self.gridWidth)
     }
 
-    private var scoreboard: some View {
-        VStack {
-            ScoreboardView(leadingText: "LEVEL", trailingText: "SCORE", style: .detail)
-            ScoreboardView(leadingText: "\(viewModel.level)", trailingText: "\(viewModel.score)")
-            Spacer()
-        }
-        .frame(width: Self.boardWidth)
-        .padding(.top, 8)
-    }
-
     private var auxiliaryView: some View {
         Group {
             switch viewModel.auxiliaryView {
@@ -147,7 +137,7 @@ struct GameView: View {
     }
 
     private var levelTransitionView: some View {
-        LevelTransitionView(level: viewModel.level, type: viewModel.auxiliaryView) {
+        LevelTransitionView(level: viewModel.scoreboard.level, type: viewModel.auxiliaryView) {
             viewModel.handle(.levelTransition)
         }
     }

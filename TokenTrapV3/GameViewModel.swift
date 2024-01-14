@@ -11,14 +11,13 @@ import Combine
 @MainActor
 class GameViewModel: ObservableObject {
     @Published var rows: [Row] = []
-    @Published var level = 1
-    @Published var score = 0
     @Published var targetToken: TokenViewModel?
     @Published var auxiliaryView: AuxiliaryView?
     @Published var rowVisibility = RowVisibility.active
     @Published var closeButtonIsDisabled = true
     @Published var isShowingCloseConfirmation = false
 
+    private(set) lazy var scoreboard = Scoreboard()
     private(set) lazy var timeProgress = Progress(count: GameLogic.RowTimer.indicatorCount)
     private(set) lazy var levelProgress = Progress(count: GameLogic.requiredRowsCleared)
 
@@ -50,8 +49,7 @@ extension GameViewModel {
     private func handle(_ state: GameLogic.State) {
         updateRows(with: state)
         updateTarget(token: state.target)
-        level = state.level
-        score = state.score
+        scoreboard.update(with: state)
         timeProgress.status = .active(value: state.timerValue)
         levelProgress.status = .active(value: state.solvedRows.count)
         closeButtonIsDisabled = !(state.gamePhase == .gameOver || state.gamePhase == .gameActive)
@@ -84,6 +82,9 @@ extension GameViewModel {
     }
 
     private func handleLevelComplete() {
+        guard !levelProgress.isFlashing else {
+            return
+        }
         levelProgress.flash {
             self.rows = []
             self.auxiliaryView = .levelComplete
@@ -283,6 +284,7 @@ extension GameViewModel {
     class Progress: GameViewModelObject {
         @Published var status: Status = .active(value: 0)
         let count: Int
+        private(set) var isFlashing = false
 
         var isComplete: Bool {
             guard case .active(let value) = status else {
@@ -312,7 +314,9 @@ extension GameViewModel {
         }
 
         func flash(count: Int = 0, with completion: @escaping () -> Void) {
+            isFlashing = true
             guard count < 10 else {
+                isFlashing = false
                 completion()
                 return
             }
@@ -325,6 +329,37 @@ extension GameViewModel {
         enum Status {
             case active(value: Int)
             case warning
+        }
+    }
+
+    class Scoreboard: GameViewModelObject {
+        @Published var level = 1
+        @Published var score = 0
+        @Published var scoreChanges: [ScoreChangeContent] = []
+
+        fileprivate func update(with state: GameLogic.State) {
+            level = state.level
+            score = state.score
+            guard shouldUpdateScoreChanges(for: state) else {
+                return
+            }
+            withAnimation {
+                scoreChanges = state.scoreChanges.map { ScoreChangeContent(scoreChange: $0) }
+            }
+        }
+
+        private func shouldUpdateScoreChanges(for state: GameLogic.State) -> Bool {
+            scoreChanges.map { $0.id } != state.scoreChanges.map { $0.id }
+        }
+
+        struct ScoreChangeContent: Identifiable {
+            let id: UUID
+            let text: String
+
+            init(scoreChange: GameLogic.ScoreChange) {
+                id = scoreChange.id
+                text = "+\(scoreChange.value)"
+            }
         }
     }
 }
