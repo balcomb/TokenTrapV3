@@ -62,7 +62,6 @@ class GameLogic {
     }
 }
 
-
 // MARK: Constants
 
 extension GameLogic {
@@ -112,7 +111,7 @@ extension GameLogic {
             startLevel()
             return
         }
-        state.gamePhase = .gameActive
+        state.gamePhase = nil
         startRows()
         sendState()
     }
@@ -129,7 +128,7 @@ extension GameLogic {
 
     private func handleResume() {
         timer.resume()
-        state.gamePhase = .gameActive
+        state.gamePhase = nil
         sendState()
     }
 }

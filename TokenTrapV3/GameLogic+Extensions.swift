@@ -126,7 +126,6 @@ extension GameLogic {
     enum GamePhase {
         case levelComplete
         case levelIntro
-        case gameActive
         case gameOver
         case gamePaused
         case gameDismissed

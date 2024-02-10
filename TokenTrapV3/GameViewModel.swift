@@ -23,6 +23,7 @@ class GameViewModel: ObservableObject {
 
     @Binding private var isShowingGame: Bool
     private let gameLogic: GameLogic
+    private var lastGamePhase: GameLogic.GamePhase?
 
     init(_ settings: GameLogic.Settings, _ isShowingGame: Binding<Bool>) {
         _isShowingGame = isShowingGame
@@ -52,7 +53,15 @@ extension GameViewModel {
         scoreboard.update(with: state)
         timeProgress.status = .active(value: state.timerValue)
         levelProgress.status = .active(value: state.solvedRows.count)
-        closeButtonIsDisabled = !(state.gamePhase == .gameOver || state.gamePhase == .gameActive)
+        updateCloseButton(with: state)
+        handleGamePhase(from: state)
+    }
+
+    private func handleGamePhase(from state: GameLogic.State) {
+        guard lastGamePhase != state.gamePhase else {
+            return
+        }
+        lastGamePhase = state.gamePhase
 
         switch state.gamePhase {
         case .levelComplete:
@@ -65,7 +74,7 @@ extension GameViewModel {
             handleGamePaused()
         case .gameDismissed:
             isShowingGame = false
-        case .gameActive, .none:
+        case nil:
             handleGameActive()
         }
     }
@@ -127,6 +136,9 @@ extension GameViewModel {
             viewModelRow.update(with: state, stateRow)
             return viewModelRow
         }
+        guard rows != updatedRows else {
+            return
+        }
         withAnimation {
             rows = updatedRows
         }
@@ -144,6 +156,14 @@ extension GameViewModel {
         withAnimation {
             targetToken = tokenViewModel
         }
+    }
+
+    private func updateCloseButton(with state: GameLogic.State) {
+        let closeButtonIsDisabled = !(state.gamePhase == .gameOver || state.gamePhase == nil)
+        guard self.closeButtonIsDisabled != closeButtonIsDisabled else {
+            return
+        }
+        self.closeButtonIsDisabled = closeButtonIsDisabled
     }
 }
 
