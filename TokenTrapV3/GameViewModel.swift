@@ -32,6 +32,15 @@ class GameViewModel: ObservableObject {
     }
 }
 
+// MARK: Event Handling
+
+extension GameViewModel {
+
+    func handle(_ event: GameLogic.Event) {
+        gameLogic.handle(event)
+    }
+}
+
 // MARK: State Handling
 
 extension GameViewModel {
@@ -164,25 +173,6 @@ extension GameViewModel {
             return
         }
         self.closeButtonIsDisabled = closeButtonIsDisabled
-    }
-}
-
-// MARK: Event Handling
-
-extension GameViewModel {
-
-    enum Event {
-        case gameAppeared
-        case tokenSelected(_ token: Token)
-        case levelTransition
-        case newGame
-        case closeSelected
-        case closeConfirmed
-        case gameResumed
-    }
-
-    func handle(_ event: Event) {
-        gameLogic.handle(event)
     }
 }
 

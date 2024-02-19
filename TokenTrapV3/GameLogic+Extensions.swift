@@ -83,6 +83,21 @@ extension GameLogic {
         }
     }
 
+    enum Event {
+        case gameAppeared
+        case tokenSelected(_ token: Token)
+        case levelTransition
+        case newGame
+        case closeSelected
+        case closeConfirmed
+        case gameResumed
+        case timerFired(_ value: Int)
+        case selectionUpdate(_ selection: GameLogic.Selection)
+        case solvedRow(_ rowId: UUID)
+        case emptyBoard
+        case scoreChangeExpired(_ scoreChange: GameLogic.ScoreChange)
+    }
+
     struct State {
         let gameId = UUID()
         var rows: [Row] = []

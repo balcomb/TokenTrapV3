@@ -22,7 +22,7 @@ class GameLogic {
     }
 
     private lazy var timer = RowTimer { [weak self] value in
-        self?.handleTimer(value)
+        self?.handle(.timerFired(value))
     }
 
     private lazy var stateSubject = PassthroughSubject<State, Never>()
@@ -32,25 +32,8 @@ class GameLogic {
         state.solvedRows.count == Self.requiredRowsCleared
     }
 
-    private func sendState() {
-        stateSubject.send(state)
-    }
-
     init(_ settings: Settings) {
         self.settings = settings
-    }
-
-    private func startLevel() {
-        if state.score > 0 {
-            state.level += 1
-            state.rows = []
-            state.solvedRows = []
-            state.selections = []
-        }
-        state.target = getTargetToken()
-        state.gamePhase = .levelIntro
-        timer.setTimeInterval(with: state.level, settings)
-        sendState()
     }
 
     private func getTargetToken() -> Token {
@@ -73,7 +56,10 @@ extension GameLogic {
 
 extension GameLogic {
 
-    func handle(_ event: GameViewModel.Event) {
+    func handle(_ event: Event) {
+        defer {
+            stateSubject.send(state)
+        }
         switch event {
         case .gameAppeared:
             handleGameDidAppear()
@@ -87,18 +73,31 @@ extension GameLogic {
             handleCloseEvent(event)
         case .gameResumed:
             handleResume()
+        case .timerFired(let value):
+            handleTimer(value)
+        case .selectionUpdate(let selection):
+            executeUpdate(for: selection)
+        case .solvedRow(let rowId):
+            removeSolvedRow(with: rowId)
+        case .emptyBoard:
+            startRows()
+        case .scoreChangeExpired(let scoreChange):
+            removeExpiredScoreChange(scoreChange)
+        }
+    }
+
+    private func schedule(event: Event, delay: Int) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(delay)) { [weak self] in
+            self?.handle(event)
         }
     }
 
     private func handleGameDidAppear() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(750)) {
-            self.handleNewGame()
-        }
+        schedule(event: .newGame, delay: 750)
     }
 
     private func handleSelected(_ token: Token) {
         process(selectedToken: token)
-        sendState()
     }
 
     private func handleNewGame() {
@@ -113,23 +112,32 @@ extension GameLogic {
         }
         state.gamePhase = nil
         startRows()
-        sendState()
     }
 
-    private func handleCloseEvent(_ event: GameViewModel.Event) {
+    private func startLevel() {
+        if state.score > 0 {
+            state.level += 1
+            state.rows = []
+            state.solvedRows = []
+            state.selections = []
+        }
+        state.target = getTargetToken()
+        state.gamePhase = .levelIntro
+        timer.setTimeInterval(with: state.level, settings)
+    }
+
+    private func handleCloseEvent(_ event: Event) {
         if case .closeSelected = event, !gameIsOver {
             timer.cancel()
             state.gamePhase = .gamePaused
         } else {
             state.gamePhase = .gameDismissed
         }
-        sendState()
     }
 
     private func handleResume() {
         timer.resume()
         state.gamePhase = nil
-        sendState()
     }
 }
 
@@ -172,7 +180,8 @@ extension GameLogic {
         let selectionStatus = getStatus(for: selectedPair)
         state.selections[selectionIndex].status = selectionStatus
         updateSolvedRows(with: selectionStatus, selectedPair)
-        scheduleUpdate(for: state.selections[selectionIndex])
+        let selection = state.selections[selectionIndex]
+        schedule(event: .selectionUpdate(selection), delay: 150)
     }
 
     private func updateSolvedRows(with selectionStatus: Selection.Status, _ tokenPair: TokenPair) {
@@ -196,21 +205,11 @@ extension GameLogic {
         return .partialMatch
     }
 
-    private func scheduleUpdate(for selection: Selection?) {
-        guard let selection = selection else {
-            return
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
-            self.executeUpdate(for: selection)
-        }
-    }
-
     private func executeUpdate(for selection: Selection) {
         if selection.status != .rejected {
             updatePartialMatch(from: selection)
         }
         state.selections.removeAll { $0 == selection }
-        sendState()
     }
 
     private func updatePartialMatch(from selection: Selection) {
@@ -226,7 +225,7 @@ extension GameLogic {
         else {
             return
         }
-        scheduleSolvedRowRemoval(for: row.id)
+        schedule(event: .solvedRow(row.id), delay: 666)
         guard levelIsComplete || state.rows.count == 1 else {
             return
         }
@@ -276,7 +275,6 @@ extension GameLogic {
             addRowOrEndGame()
         }
         state.timerValue = value
-        sendState()
     }
 
     private func addRowOrEndGame() {
@@ -316,12 +314,6 @@ extension GameLogic {
         }
     }
 
-    private func scheduleSolvedRowRemoval(for rowId: UUID) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(666)) {
-            self.removeSolvedRow(with: rowId)
-        }
-    }
-
     private func removeSolvedRow(with id: UUID) {
         guard let index = state.rows.firstIndex(where: { $0.id == id }) else {
             return
@@ -331,15 +323,7 @@ extension GameLogic {
         if levelIsComplete {
             state.gamePhase = .levelComplete
         } else if state.rows.isEmpty {
-            startRowsDelayed()
-        }
-        sendState()
-    }
-
-    private func startRowsDelayed() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(333)) {
-            self.startRows()
-            self.sendState()
+            schedule(event: .emptyBoard, delay: 333)
         }
     }
 }
@@ -351,14 +335,8 @@ extension GameLogic {
     private func updateScore(for rowIndex: Int) {
         let scoreChange = ScoreChange(challengeType: state.rows[rowIndex].challengeType)
         state.scoreChanges.append(scoreChange)
-        scheduleScoreChangeRemoval(scoreChange)
+        schedule(event: .scoreChangeExpired(scoreChange), delay: 1000)
         state.score += scoreChange.value
-    }
-
-    private func scheduleScoreChangeRemoval(_ scoreChange: ScoreChange) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
-            self?.removeExpiredScoreChange(scoreChange)
-        }
     }
 
     private func removeExpiredScoreChange(_ scoreChange: ScoreChange) {
@@ -366,7 +344,6 @@ extension GameLogic {
             return
         }
         state.scoreChanges.removeAll { $0.id == scoreChange.id }
-        sendState()
     }
 }
 

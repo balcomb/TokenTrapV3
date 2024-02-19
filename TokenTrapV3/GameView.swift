@@ -10,6 +10,11 @@ import SwiftUI
 struct GameView: View {
     @StateObject private var viewModel: GameViewModel
 
+    typealias EventHandler = (GameLogic.Event) -> (() -> Void)
+    private var eventHandler: EventHandler {
+        { event in { viewModel.handle(event) } }
+    }
+
     static var boardWidth: CGFloat {
         UIScreen.main.bounds.size.width * (UIDevice.current.userInterfaceIdiom == .pad ? 0.666 : 1)
     }
@@ -33,9 +38,7 @@ struct GameView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
-        .onAppear {
-            viewModel.handle(.gameAppeared)
-        }
+        .onAppear(perform: eventHandler(.gameAppeared))
     }
 
     private var topControls: some View {
@@ -51,9 +54,7 @@ struct GameView: View {
     }
 
     private var closeButton: some View {
-        Button {
-            viewModel.handle(.closeSelected)
-        } label: {
+        Button(action: eventHandler(.closeSelected)) {
             closeIcon(size: topControlSize)
         }
         .disabled(viewModel.closeButtonIsDisabled)
@@ -62,12 +63,8 @@ struct GameView: View {
             isPresented: $viewModel.isShowingCloseConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Continue Game", role: .cancel) {
-                viewModel.handle(.gameResumed)
-            }
-            Button("End Game", role: .destructive) {
-                viewModel.handle(.closeConfirmed)
-            }
+            Button("Continue Game", role: .cancel, action: eventHandler(.gameResumed))
+            Button("End Game", role: .destructive, action: eventHandler(.closeConfirmed))
         }
     }
 
@@ -113,9 +110,7 @@ struct GameView: View {
                 Spacer()
             }
             ForEach(viewModel.rows) { row in
-                RowView(row: row) { token in
-                    viewModel.handle(.tokenSelected(token))
-                }
+                RowView(row: row, eventHandler: eventHandler)
             }
         }
         .frame(width: Self.gridWidth, height: Self.gridWidth)
@@ -137,20 +132,19 @@ struct GameView: View {
     }
 
     private var levelTransitionView: some View {
-        LevelTransitionView(level: viewModel.scoreboard.level, type: viewModel.auxiliaryView) {
-            viewModel.handle(.levelTransition)
-        }
+        LevelTransitionView(
+            level: viewModel.scoreboard.level,
+            type: viewModel.auxiliaryView,
+            action: eventHandler(.levelTransition)
+        )
     }
 
     private var playAgainButton: some View {
-        Button(
-            action: { viewModel.handle(.newGame) },
-            label: {
-                getPlayAgainArrowText(arrowCharacter: "\u{25B6}")
-                buttonText(" Play Again ")
-                getPlayAgainArrowText(arrowCharacter: "\u{25C0}")
-            }
-        )
+        Button(action: eventHandler(.newGame)) {
+            getPlayAgainArrowText(arrowCharacter: "\u{25B6}")
+            buttonText(" Play Again ")
+            getPlayAgainArrowText(arrowCharacter: "\u{25C0}")
+        }
         .bigButton()
         .controlSize(.large)
     }

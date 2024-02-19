@@ -53,7 +53,7 @@ extension GameView {
     struct RowView: View {
         @ObservedObject var row: GameViewModel.Row
         @State private var scale = 0.7
-        let action: (Token) -> Void
+        let eventHandler: EventHandler
 
         var body: some View {
             HStack(spacing: GameView.tokenSpacing) {
@@ -69,10 +69,13 @@ extension GameView {
 
         private func getTokenViews() -> some View {
             ForEach(row.tokens) { tokenViewModel in
-                TokenView(viewModel: tokenViewModel, size: GameView.tokenSize)
-                    .onTapGesture {
-                        action(tokenViewModel.token)
-                    }
+                TokenView(
+                    viewModel: tokenViewModel,
+                    size: GameView.tokenSize
+                )
+                .onTapGesture(
+                    perform: eventHandler(.tokenSelected(tokenViewModel.token))
+                )
             }
         }
     }
@@ -212,7 +215,7 @@ extension GameView {
         @State private var animationControl: SequencedAnimation.Control?
         let level: Int
         let type: GameViewModel.AuxiliaryView?
-        let callback: () -> Void
+        let action: () -> Void
 
         private var isLevelIntro: Bool {
             if case .levelIntro = type {
@@ -300,7 +303,7 @@ extension GameView {
             animationControl.cancel()
             self.animationControl = nil
             endAnimation.start {
-                callback()
+                action()
             }
         }
 
@@ -309,7 +312,7 @@ extension GameView {
                 return
             }
             animationControl = nil
-            callback()
+            action()
         }
     }
 }
